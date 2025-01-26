@@ -1,0 +1,1 @@
+// Left-swipe for TryOn results.
