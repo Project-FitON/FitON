@@ -20,8 +20,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.initState();
   }
 
-  Widget _buildImage(String assetName, [double width = 200]) {
-    return Image.asset('lib/$assetName', width: width);
+  Widget _buildImage(String assetName, [double width = 300, height= 300]) {
+    return Image.asset('lib/$assetName', width: width,height: height);
   }
 
   @override
@@ -29,7 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     const bodyStyle = TextStyle(fontSize: 19.0);
 
     const pageDecoration = PageDecoration(
-      titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
+      titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700,fontFamily: 'Roboto',),
       bodyTextStyle: bodyStyle,
       bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
       pageColor: Colors.white,
@@ -94,7 +94,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       controlsPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       dotsDecorator: const DotsDecorator(
         size: Size(8.0, 8.0),
-        color: Color(0xFFBDBDBD),
+        color: Color.fromARGB(255, 244, 100, 100),
         activeSize: Size(15.0, 5.0),
         activeColor: Colors.black,
         activeShape: RoundedRectangleBorder(
