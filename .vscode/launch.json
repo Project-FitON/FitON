@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Dart (lib\\main.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib\\main.dart"
+        },
+        {
+            "name": "Dart (lib\\main.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib\\main.dart"
+        }
+    ]
+}
