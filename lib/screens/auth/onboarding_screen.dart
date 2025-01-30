@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildImage(String assetName, [double width = 200]) {
-    return Image.asset('images/$assetName', width: width);
+    return Image.asset('lib/$assetName', width: width);
   }
 
   @override
@@ -32,7 +32,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
       bodyTextStyle: bodyStyle,
       bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-      pageColor: Colors.pinkAccent,
+      pageColor: Colors.white,
       imagePadding: EdgeInsets.zero,
     );
 
@@ -49,13 +49,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         PageViewModel(
           title: "Virtual Try-On",
           body: "Use our virtual fitting room to see how outfits look on you before buying!",
-          image: _buildImage('fashion_2.png'),
+          image: _buildImage('fashion_2.jpg'),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "Stay Trendy, Stay Chic",
           body: "Get fashion tips, follow the latest trends, and build your dream wardrobe effortlessly!",
-          image: _buildImage('fashion_3.png'),
+          image: _buildImage('fashion_3.jpg'),
           footer: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: ElevatedButton(
@@ -64,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(55),
-                backgroundColor: Colors.pink,
+                backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
