@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fiton/screens/nav/nav_screen.dart'; // Ensure correct import path
+import 'package:fiton/screens/nav/nav_screen.dart';
 
 class ReviewScreen extends StatelessWidget {
   final List<Map<String, dynamic>> reviews = [
