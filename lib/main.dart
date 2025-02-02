@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/auth/onboarding_screen.dart';
-import 'package:fiton/screens/feed/feed_screen.dart';
+// import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
