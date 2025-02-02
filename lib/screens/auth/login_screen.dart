@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-
+import 'signup_screen.dart'; 
 
 class LoginPage extends StatelessWidget {
   @override
@@ -32,46 +31,33 @@ class LoginPage extends StatelessWidget {
                       filled: true,
                       fillColor: Colors.red.shade50,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none))),
-
               SizedBox(height: 20),
               ElevatedButton(
-  onPressed: () {},
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.red, 
-    minimumSize: Size(double.infinity, 50),
-    textStyle: TextStyle(color: Colors.white), // Corrected this line
-  ),
-  child: Text(
-    "Login Now",
-    style: TextStyle(color: Colors.white), // Ensure text color is white
-  ),
-),
-
-                
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  minimumSize: Size(double.infinity, 50),
+                  textStyle: TextStyle(color: Colors.white),
+                ),
+                child: Text(
+                  "Login Now",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
               SizedBox(height: 10),
               TextButton(onPressed: () {}, child: Text("Forgot password?", style: TextStyle(color: Colors.red))),
               Spacer(),
               GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
-                  },
-                  child: Text("Don't have an account? Sign Up", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))),
+                onTap: () {
+                  // Navigate to the SignUpPage from here
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
+                },
+                child: Text("Don't have an account? Sign Up", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              ),
               SizedBox(height: 20),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-// Placeholder for SignUpPage
-class SignUpPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text("Sign Up Page"),
       ),
     );
   }

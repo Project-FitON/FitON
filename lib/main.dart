@@ -1,8 +1,5 @@
 
-// import 'package:fiton/screens/auth/onboarding_screen.dart';
-// import 'package:fiton/screens/auth/login_screen.dart';
-// import 'package:fiton/screens/auth/login_screen.dart';
-import 'package:fiton/screens/auth/signup_screen.dart';
+import 'package:fiton/screens/auth/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,9 +18,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // home: const OnboardingScreen(),
-      // home: LoginPage(),
-      home: SignUpPage(),
+      home: const OnboardingScreen(),
+      
+      
     );
   }
 }

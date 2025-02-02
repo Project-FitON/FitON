@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -20,8 +21,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.initState();
   }
 
-  Widget _buildImage(String assetName, [double width = 300, height= 300]) {
-    return Image.asset('lib/$assetName', width: width,height: height);
+  Widget _buildImage(String assetName, [double width = 300, height = 300]) {
+    return Image.asset('lib/$assetName', width: width, height: height);
   }
 
   @override
@@ -29,7 +30,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     const bodyStyle = TextStyle(fontSize: 19.0);
 
     const pageDecoration = PageDecoration(
-      titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700,fontFamily: 'Roboto',),
+      titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700, fontFamily: 'Roboto'),
       bodyTextStyle: bodyStyle,
       bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
       pageColor: Colors.white,
@@ -60,7 +61,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: ElevatedButton(
               onPressed: () {
-                print("Clicked Get Started Button");
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(55),
