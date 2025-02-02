@@ -65,7 +65,9 @@ flutter:
     - lib/fashion_1.png
     - lib/fashion_2.jpg
     - lib/fashion_3.jpg
-    
+    - lib/cloth_1.jpg
+    - lib/cloth_2.jpeg
+    - lib/cloth_3.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
