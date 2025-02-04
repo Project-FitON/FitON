@@ -23,8 +23,15 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.4-0.0.pre.1'
+          flutter-version: '3.22.4'
           channel: 'stable'
+
+      - name: Install Dart 3.4.4
+        run: |
+          brew update
+          brew tap dart-lang/dart
+          brew install dart@3.4.4
+          brew link dart@3.4.4 --force --overwrite
 
       - name: Verify Flutter Version
         run: flutter --version
