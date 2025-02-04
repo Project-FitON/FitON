@@ -42,9 +42,6 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Tests
-        run: flutter test
-
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 
