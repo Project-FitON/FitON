@@ -1,91 +1,115 @@
+import 'tryon_components/tryon_top_download_component.dart';
+import 'tryon_components/tryon_top_back_component.dart';
+import 'tryon_components/tryon_main_buttons_component.dart';
+import 'feed_components/more_details_component.dart';
+import 'feed_components/navigation_component.dart';
 import 'package:flutter/material.dart';
-import 'package:fiton/screens/nav/nav_screen.dart';
 
-class TryOnScreen extends StatefulWidget {
-  @override
-  _TryOnScreenState createState() => _TryOnScreenState();
-}
-
-class _TryOnScreenState extends State<TryOnScreen> {
-  final List<Map<String, String>> cardData = [
-    {
-      'image': 'lib/cloth_1.jpg',
-    },
-  ];
-
+class TryOnScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          iconSize: 30.0,
-          onPressed: () {
-            Navigator.pop(context);
-          },
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          // Check if the swipe was towards the right
+          if (details.primaryVelocity! > 0) {
+            Navigator.pop(context); // Navigate back
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset('assets/images/feed/5-1.jpg',fit: BoxFit.cover),
+              ),
+              // Top Overlay
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 242,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(1), // Fully visible at the top
+                        Colors.black.withOpacity(0.5),  // Midpoint fade
+                        Colors.black.withOpacity(0.0),  // Fully transparent at the bottom
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50, left: 8),
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: TryOnTopBackToShoppingComponent(),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50, right: 8),
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: TryOnTopDownloadComponent(),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              // Bottom Overlay
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(1), // Fully visible at the top
+                        Colors.black.withOpacity(0.5),  // Midpoint fade
+                        Colors.black.withOpacity(0.0),  // Fully transparent at the bottom
+                      ],
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: TryOnMainButtonsComponent(),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [                 
+                          Container(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 9),
+                              child: RightBottomButtons(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0),
+                        child: NavigationComponent(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.download, color: Colors.white),
-            iconSize: 30.0,
-            onPressed: () {
-              // Handle download action
-            },
-          ),
-        ],
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: buildCard(cardData[0]),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.80,
-            left: MediaQuery.of(context).size.width * 0.265,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildIconButton(Icons.send_rounded, () {
-                  // Handle share action
-                }),
-                SizedBox(width: 20),
-                buildIconButton(Icons.shopping_bag, () {
-                  // Handle buy action
-                }),
-                SizedBox(width: 20),
-                buildIconButton(Icons.shopping_cart, () {
-                  // Handle cart action
-                }),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: NavScreen(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCard(Map<String, String> card) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      child: Image.asset(
-        card['image']!,
-        fit: BoxFit.cover,
-      ),
-    );
-  }
-
-  Widget buildIconButton(IconData icon, VoidCallback onPressed) {
-    return IconButton(
-      icon: Icon(icon, size: 32, color: Colors.white),
-      onPressed: onPressed,
     );
   }
 }

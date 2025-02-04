@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:fiton/screens/feed/feed_screen.dart';
-import 'login_otp_screen.dart';
 import 'package:flutter/material.dart';
 
 class SignUpInterestsScreen extends StatefulWidget {

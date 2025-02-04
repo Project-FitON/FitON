@@ -44,7 +44,7 @@ jobs:
           zip -r ../app.ipa Runner.app
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Build Artifacts
           path: |
