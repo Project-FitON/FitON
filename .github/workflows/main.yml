@@ -20,10 +20,10 @@ jobs:
           distribution: 'adopt'
           java-version: '17'  # Updated to supported LTS version
 
-      - name: Set up Flutter
+      - name: Set up Flutter with Dart 3.4.4
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.0'  # Updated Flutter version
+          flutter-version: '3.13.0'  # Supports Dart 3.4.4+
 
       - name: Install Dependencies
         run: flutter pub get
