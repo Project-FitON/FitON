@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'screens/auth/onboarding_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/feed/tryon_screen.dart';
-import 'screens/feed/feed_screen.dart';
 
 void main() async {
   runApp(FitOn());
