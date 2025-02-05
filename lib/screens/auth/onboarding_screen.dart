@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'signup_name_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({Key? key}) : super(key: key);

@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'login_otp_screen.dart';
+import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
 
 class SignUpInterestsScreen extends StatefulWidget {
@@ -174,7 +174,7 @@ class _SignUpInterestsScreenState extends State<SignUpInterestsScreen> {
                         Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => LoginOtpScreen(),
+                            pageBuilder: (context, animation, secondaryAnimation) => FeedScreen(),
                             transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               const begin = Offset(1.0, 0.0);
                               const end = Offset.zero;
