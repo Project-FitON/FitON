@@ -1,15 +1,19 @@
+import 'package:fiton/screens/feed/tryon_components/tryon_main_buttons_component.dart';
+
 import 'tryon_screen.dart';
 import 'feed_components/more_details_component.dart';
 import 'package:flutter/material.dart';
 import 'feed_components/seller_component.dart';
 import 'feed_components/top_buttons_component.dart';
 import 'feed_components/favourite_component.dart';
-import 'feed_components/main_buttons_component.dart';
 import 'feed_components/reviews_component.dart';
 import 'feed_components/product_component.dart';
 import 'feed_components/navigation_component.dart';
 
 class FeedScreen extends StatelessWidget {
+  // A sample reviewId, you might get it dynamically from the data
+  final String reviewId = '141634fc-53db-43c1-95e0-52ef1f8c5990';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +36,7 @@ class FeedScreen extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/images/feed/recommed.jpg',fit: BoxFit.cover),
+                child: Image.asset('assets/images/feed/recommed.jpg', fit: BoxFit.cover),
               ),
               // Top Overlay
               Positioned(
@@ -60,11 +64,13 @@ class FeedScreen extends StatelessWidget {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 50, left: 8),
-                            child: SellerComponent(),
+                            child: SellerComponent(onTap: () {}),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 15, left: 16),
-                            child: FavouriteComponent(),
+                            child: FavouriteComponent(
+                              reviewId: reviewId, // Pass the reviewId dynamically
+                            ),
                           ),
                         ],
                       ),
@@ -90,9 +96,9 @@ class FeedScreen extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(1), // Fully visible at the top
-                        Colors.black.withOpacity(0.5),  // Midpoint fade
-                        Colors.black.withOpacity(0.0),  // Fully transparent at the bottom
+                        Colors.black.withOpacity(1),
+                        Colors.black.withOpacity(0.5),
+                        Colors.black.withOpacity(0.0),
                       ],
                     ),
                   ),
@@ -105,7 +111,7 @@ class FeedScreen extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: ReviewsComponent(),
+                        child: ReviewsComponent(onTap: () {}),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,9 +119,9 @@ class FeedScreen extends StatelessWidget {
                           Container(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 9),
-                              child: ProductComponent(),
+                              child: ProductComponent(onTap: () {}),
                             ),
-                          ),                    
+                          ),
                           Container(
                             child: Padding(
                               padding: const EdgeInsets.only(right: 9),

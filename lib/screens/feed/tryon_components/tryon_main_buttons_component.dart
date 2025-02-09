@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class TryOnMainButtonsComponent extends StatelessWidget {
+class MainButtonsComponent extends StatelessWidget {
   final String orderCount;
 
-  const TryOnMainButtonsComponent({
+  const MainButtonsComponent({
     Key? key,
     this.orderCount = '34K',
   }) : super(key: key);
@@ -12,44 +12,37 @@ class TryOnMainButtonsComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Move the Row down slightly to overlap with the Stack
-        Transform.translate(
-          offset: Offset(0, 10), // Adjust this value to control the overlap
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Share button
-              Container(
-                width: 25,
-                height: 25,
-                child: Image.asset('assets/images/feed/share.png',fit: BoxFit.contain),
-              ),
-              SizedBox(width: 150),
-              // Cart button
-              Container(
-                width: 25,
-                height: 25,
-                child: Image.asset('assets/images/feed/cart.png',fit: BoxFit.contain),
-              ),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: Image.asset('assets/images/feed/share.png'),
+              onPressed: () {
+                print("Share button clicked!");
+              },
+            ),
+            SizedBox(width: 150),
+            IconButton(
+              icon: Image.asset('assets/images/feed/cart.png'),
+              onPressed: () {
+                print("Cart button clicked!");
+              },
+            ),
+          ],
         ),
-
         Stack(
           alignment: Alignment.center,
           children: [
-            // Button at the bottom
-            Container(
-              width: 48,
-              height: 48,
-              child: Image.asset('assets/images/feed/buy-now.png',fit: BoxFit.contain),
+            IconButton(
+              icon: Image.asset('assets/images/feed/buy-now.png'),
+              onPressed: () {
+                print("Buy Now button clicked!");
+              },
             ),
-            // Order count text, shifted down by 33 pixels
             Transform.translate(
-              offset: Offset(0, 33), // Moves the text downwards
+              offset: Offset(0, 33),
               child: Text(
-                '$orderCount', // Ensure orderCount is a string
+                '$orderCount',
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 13,
