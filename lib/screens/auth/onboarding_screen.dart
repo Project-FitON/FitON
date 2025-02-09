@@ -1,10 +1,58 @@
 import 'dart:ui';
-import 'signup_name_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'signup_name_screen.dart';
+import 'login_otp_screen.dart';
+import 'supabase_service.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  OnboardingScreen({Key? key}) : super(key: key);
+  final TextEditingController _phoneController = TextEditingController();
+
+  Future<void> _handleSubmission(BuildContext context) async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) return;
+
+    final service = SupabaseService();
+    final userExists = await service.checkUserExists(phone);
+
+    if (userExists) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => LoginOtpScreen(phoneNumber: phone),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
+      );
+    } else {
+      final newBuyer = await service.createBuyer(phone);
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => SignUpNameScreen(buyerId: newBuyer['buyer_id']),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +72,7 @@ class OnboardingScreen extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                Positioned( // Blured Circle
+                Positioned(
                   top: 300,
                   left: -200,
                   child: ClipOval(
@@ -33,18 +81,16 @@ class OnboardingScreen extends StatelessWidget {
                       child: Container(
                         width: 631.72,
                         height: 631.72,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: Image.asset('assets/images/auth/blur-cir.png',fit: BoxFit.cover),
+                        child: Image.asset('assets/images/auth/blur-cir.png', fit: BoxFit.cover),
                       ),
                     ),
                   ),
                 ),
-
-                // Gradient Overlay
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -56,15 +102,13 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // Content
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Welcome to\nFitON !!! 👋',
                         style: TextStyle(
                           color: Colors.white,
@@ -72,7 +116,7 @@ class OnboardingScreen extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      Text(
+                      const Text(
                         'And Let\'s Fit On...',
                         style: TextStyle(
                           color: Colors.white,
@@ -80,13 +124,15 @@ class OnboardingScreen extends StatelessWidget {
                           fontWeight: FontWeight.w200,
                         ),
                       ),
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextField(
-                            style: TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
                               labelText: 'Phone Number',
                               labelStyle: TextStyle(
                                 color: Color(0xFF959595),
@@ -101,40 +147,21 @@ class OnboardingScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => SignUpNameScreen(),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
-
-                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                                    return SlideTransition(
-                                      position: animation.drive(tween),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
+                            onPressed: () => _handleSubmission(context),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF1B0331),
-                              padding: EdgeInsets.symmetric(
+                              backgroundColor: const Color(0xFF1B0331),
+                              padding: const EdgeInsets.symmetric(
                                 vertical: 14,
                                 horizontal: 18,
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(40),
                               ),
-                              minimumSize: Size(319, 49),
+                              minimumSize: const Size(319, 49),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(

@@ -3,14 +3,85 @@ import 'signup_birthday_screen.dart';
 import 'package:flutter/material.dart';
 
 class SignUpNameScreen extends StatefulWidget {
-  const SignUpNameScreen({Key? key}) : super(key: key);
+  final String buyerId;
+  const SignUpNameScreen({super.key, required this.buyerId});
 
   @override
   _SignUpNameScreenState createState() => _SignUpNameScreenState();
 }
 
 class _SignUpNameScreenState extends State<SignUpNameScreen> {
+  final TextEditingController _nameController = TextEditingController();
   String? _selectedGender;
+  late String buyerId;
+
+  @override
+  void initState() {
+    super.initState();
+    buyerId = widget.buyerId;
+    _selectedGender = 'female'; // Default gender selection
+  }
+
+  void _handleSubmission() {
+    if (_nameController.text.isEmpty || _selectedGender == null) return;
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SignUpBirthdayScreen(
+          buyerId: buyerId,
+          nickname: _nameController.text,
+          gender: _selectedGender!,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGenderButton(String text, String value) {
+    final isSelected = _selectedGender == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedGender = value;
+        });
+      },
+      child: Container(
+        width: 125,
+        height: 33.57,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0x33C4C4C4) : const Color(0x0D000000),
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: const Color(0x09995959),
+            width: 1.5,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFF959595),
+              fontSize: 14,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +101,7 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
             ),
             child: Stack(
               children: [
-                Positioned( // Blurred Circle
+                Positioned(
                   top: 250,
                   left: -175,
                   child: ClipOval(
@@ -39,10 +110,10 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                       child: Container(
                         width: 631.72,
                         height: 631.72,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: Image.asset('assets/images/auth/blur-cir.png',fit: BoxFit.cover),
+                        child: Image.asset('assets/images/auth/blur-cir.png', fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -50,7 +121,7 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
 
                 // Gradient Overlay
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -74,10 +145,10 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row (
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Hi !\nI\'m Fashee...',
                                     style: TextStyle(
                                       color: Colors.white,
@@ -87,12 +158,12 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: EdgeInsets.only(left: 20, bottom: 10), 
-                                    child: Image.asset('assets/images/auth/bot.png',width: 50,height: 50),
+                                    padding: const EdgeInsets.only(left: 20, bottom: 10),
+                                    child: Image.asset('assets/images/auth/bot.png', width: 50, height: 50),
                                   ),
                                 ],
                               ),
-                              Text(
+                              const Text(
                                 'Love to know about u...',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -105,10 +176,11 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       TextField(
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
+                        controller: _nameController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
                           labelText: 'Nick Name',
                           labelStyle: TextStyle(
                             color: Color(0xFF959595),
@@ -124,45 +196,26 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 27),
+                      const SizedBox(height: 27),
                       Row(
                         children: [
                           _buildGenderButton('🚹 Male', 'male'),
-                          SizedBox(width: 27),
+                          const SizedBox(width: 27),
                           _buildGenderButton('🚺 Female', 'female'),
                         ],
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => SignUpBirthdayScreen(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
-
-                                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1B0331),
-                          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+                        onPressed: _handleSubmission,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1B0331),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          minimumSize: Size(324, 49),
+                          minimumSize: const Size(324, 49),
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
@@ -183,44 +236,6 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-  @override
-  void initState() {
-    super.initState();
-    _selectedGender = 'female'; // Set default value here
-  }
-  Widget _buildGenderButton(String text, String value) {
-    final isSelected = _selectedGender == value;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedGender = value;
-        });
-      },
-      child: Container(
-        width: 125,
-        height: 33.57,
-        decoration: BoxDecoration(
-          color: isSelected ? Color(0x33C4C4C4) : Color(0x0D000000),
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(
-            color: Color(0x9995959),
-            width: 1.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: Color(0xFF959595),
-              fontSize: 14,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w400,
             ),
           ),
         ),

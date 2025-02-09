@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class LoginOtpScreen extends StatefulWidget {
-  final String name;
-  
+  final String phoneNumber;
+
   const LoginOtpScreen({
-    Key? key,
-    this.name = 'Nimesha', // Default value
-  }) : super(key: key);
+    super.key,
+    required this.phoneNumber,
+  });
 
   @override
   State<LoginOtpScreen> createState() => _OtpScreenState();
@@ -25,7 +25,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
     (index) => FocusNode(),
   );
 
-  int _timerSeconds = 59;
+  final int _timerSeconds = 59;
 
   @override
   void initState() {
@@ -83,10 +83,10 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                       child: Container(
                         width: 631.72,
                         height: 631.72,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: Image.asset('assets/images/auth/blur-cir.png',fit: BoxFit.cover),
+                        child: Image.asset('assets/images/auth/blur-cir.png', fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -94,7 +94,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
 
                 // Gradient Overlay
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -113,29 +113,29 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                    Row(
+                      Row(
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [ 
-                              Row ( 
+                            children: [
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Welcome back\n${widget.name} !!!',
-                                    style: TextStyle(
+                                    'Welcome back\n${widget.phoneNumber} !!!',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 40,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
                                   Padding(
-                                    padding: EdgeInsets.only(left: 10, bottom: 8), 
-                                    child: Image.asset('assets/images/auth/bot.png',width: 50,height: 50),
+                                    padding: const EdgeInsets.only(left: 10, bottom: 8),
+                                    child: Image.asset('assets/images/auth/bot.png', width: 50, height: 50),
                                   )
                                 ],
                               ),
-                              Text(
+                              const Text(
                                 'Please type the OTP I sent...',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -147,7 +147,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(
@@ -165,8 +165,8 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                               textAlign: TextAlign.center,
                               keyboardType: TextInputType.number,
                               maxLength: 1,
-                              style: TextStyle(color: Colors.white, fontSize: 24),
-                              decoration: InputDecoration(
+                              style: const TextStyle(color: Colors.white, fontSize: 24),
+                              decoration: const InputDecoration(
                                 counterText: '',
                                 border: InputBorder.none,
                               ),
@@ -175,38 +175,38 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       // Button
-                           ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => OnboardingScreen(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation, secondaryAnimation) => OnboardingScreen(),
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                const begin = Offset(1.0, 0.0);
+                                const end = Offset.zero;
+                                const curve = Curves.ease;
 
-                                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1B0331),
-                          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+                                return SlideTransition(
+                                  position: animation.drive(tween),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1B0331),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          minimumSize: Size(319, 49),
+                          minimumSize: const Size(319, 49),
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
@@ -221,12 +221,12 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
+                            const Text(
                               'Not received? Please wait ',
                               style: TextStyle(
                                 color: Colors.white,
@@ -236,7 +236,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                             ),
                             Text(
                               '0:$_timerSeconds',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w300,
