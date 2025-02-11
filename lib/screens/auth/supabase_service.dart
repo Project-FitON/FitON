@@ -20,6 +20,8 @@ class SupabaseService {
         .insert({'phone_number': phone})
         .select()
         .single();
+
+    print(response);
     return response;
   }
 
