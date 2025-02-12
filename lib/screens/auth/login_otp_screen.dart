@@ -1,21 +1,21 @@
-import 'dart:ui';
-import 'onboarding_screen.dart';
+import 'dart:ui'; 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'onboarding_screen.dart'; 
 
 class LoginOtpScreen extends StatefulWidget {
   final String phoneNumber;
 
   const LoginOtpScreen({
-    super.key,
+    Key? key,
     required this.phoneNumber,
-  });
+  }) : super(key: key);
 
   @override
-  State<LoginOtpScreen> createState() => _OtpScreenState();
+  State<LoginOtpScreen> createState() => _LoginOtpScreenState();
 }
 
-class _OtpScreenState extends State<LoginOtpScreen> {
+class _LoginOtpScreenState extends State<LoginOtpScreen> {
   final List<TextEditingController> _controllers = List.generate(
     4,
     (index) => TextEditingController(),
@@ -26,6 +26,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
   );
 
   final int _timerSeconds = 59;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
         setState(() {});
       });
     }
+    _sendOtp(); // Send OTP automatically when the screen loads
   }
 
   @override
@@ -51,6 +53,69 @@ class _OtpScreenState extends State<LoginOtpScreen> {
   void _onOtpDigitChanged(int index, String value) {
     if (value.length == 1 && index < 3) {
       _focusNodes[index + 1].requestFocus();
+    }
+  }
+
+  Future<void> _sendOtp() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Send OTP using Supabase
+      await Supabase.instance.client.auth.signInWithOtp(
+        phone: widget.phoneNumber,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('OTP sent to ${widget.phoneNumber}')),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send OTP: $e')),
+      );
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Combine OTP digits
+      final otp = _controllers.map((controller) => controller.text).join();
+
+      // Verify OTP using Supabase
+      await Supabase.instance.client.auth.verifyOTP(
+        phone: widget.phoneNumber,
+        token: otp,
+        type: OtpType.sms,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Navigate to the next screen after successful verification
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => OnboardingScreen()),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to verify OTP: $e')),
+      );
     }
   }
 
@@ -178,26 +243,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                       const SizedBox(height: 24),
                       // Button
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => OnboardingScreen(),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.ease;
-
-                                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                                return SlideTransition(
-                                  position: animation.drive(tween),
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-                        },
+                        onPressed: _isLoading ? null : _verifyOtp,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1B0331),
                           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
@@ -206,20 +252,17 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                           ),
                           minimumSize: const Size(319, 49),
                         ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Let's FitOn",
-                              style: TextStyle(
-                                color: Color(0xFFFAFBFC),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
+                        child: _isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text(
+                                "Let's FitOn",
+                                style: TextStyle(
+                                  color: Color(0xFFFAFBFC),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                       const SizedBox(height: 24),
                       Center(
