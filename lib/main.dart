@@ -1,3 +1,5 @@
+import 'package:fiton/screens/cart/cart_screen.dart';
+import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/auth/onboarding_screen.dart';
@@ -24,7 +26,12 @@ class FitOn extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
+
       home: OnboardingScreen(),
+
+      home: Scaffold(
+        body: FeedScreen(),
+        ),
     );
   }
 }
