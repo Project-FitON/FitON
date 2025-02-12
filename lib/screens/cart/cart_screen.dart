@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-
-class CartScreen extends StatelessWidget {
-  const CartScreen({Key? key}) : super(key: key);
 import 'package:fiton/screens/nav/nav_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -11,13 +7,10 @@ class CartScreen extends StatelessWidget {
     {'id': 2, 'name': 'Bomber Jackets', 'price': "LKR.3200.00", 'size': 'M', 'image': 'assets/images/feed/profile.jpg'},
     {'id': 3, 'name': 'Bomber Jackets', 'price': "LKR.2500.OO", 'size': 'XL', 'image': 'assets/images/feed/profile.jpg'},
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cart')),
-      body: const Center(
-        child: Text('Cart Screen'),
-      ),
       backgroundColor: Colors.grey[50],
       body: Column(
         children: [
@@ -114,8 +107,8 @@ class CartScreen extends StatelessWidget {
                             Text(
                               item['size'],
                               style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black45
+                                  fontSize: 18,
+                                  color: Colors.black45
                               ),
                             ),
                             SizedBox(height: 8),
@@ -170,7 +163,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     Text('LKR.10 500.00',
                       style: TextStyle(
-                          color: Colors.black45,
+                        color: Colors.black45,
                       ),
                     ),
                   ],
@@ -187,7 +180,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     Text('LKR.250.00',
                       style: TextStyle(
-                        color: Colors.black45
+                          color: Colors.black45
                       ),
                     ),
                   ],
