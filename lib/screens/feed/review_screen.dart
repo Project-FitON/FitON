@@ -1,112 +1,132 @@
 import 'package:flutter/material.dart';
-import 'package:fiton/screens/nav/nav_screen.dart';
+import 'dart:ui';
+import 'feed_components/favourite_component.dart';
 
-class ReviewScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> reviews = [
-    {
-      "name": "John Doe",
-      "avatar": "assets/avatar1.png",
-      "review": "Great service! Highly recommend.",
-      "likes": 15,
-      "comments": 3,
-      "images": ["assets/review1.png"]
-    },
-    {
-      "name": "Jane Smith",
-      "avatar": "assets/avatar2.png",
-      "review": "Amazing experience, will come back again.",
-      "likes": 20,
-      "comments": 5,
-      "images": []
-    },
-  ];
+class ReviewsComponent extends StatelessWidget {
+  final String reviewId; // Required to connect with Supabase
+  final String commenterName;
+  final String comment;
+  final int likes; // Changed type to int for consistency
+  final List<String> starImages;
+  final String profileImage;
+  final VoidCallback onTap;
+
+  const ReviewsComponent({
+    Key? key,
+    required this.reviewId, // Now required to link to Supabase
+    this.commenterName = 'Hasitha Nadun 24',
+    this.comment = 'Highly Recommended!',
+    this.likes = 1300, // Default likes count
+    this.starImages = const [
+      'assets/images/feed/star.png',
+      'assets/images/feed/star.png',
+      'assets/images/feed/star.png',
+      'assets/images/feed/star.png',
+      'assets/images/feed/star.png',
+    ],
+    this.profileImage = 'assets/images/feed/commente.jpg',
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Customer Reviews")),
-      body: ListView.builder(
-        itemCount: reviews.length,
-        itemBuilder: (context, index) {
-          final review = reviews[index];
-          return Card(
-            margin: EdgeInsets.all(10),
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        constraints: BoxConstraints(maxWidth: 210, maxHeight: 140), // Increased height
+        padding: EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row with rating, likes, and FavouriteComponent
+            Row(
+              children: [
+                // Rating stars
+                Row(
+                  children: starImages
+                      .map((star) => Image.asset(star, width: 12, height: 12))
+                      .toList(),
+                ),
+                const SizedBox(width: 5),
+
+                // Likes count + FavouriteComponent
+                FavouriteComponent(
+                  reviewId: reviewId,
+                  initialFavoriteCount: likes, // Dynamic likes count
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Comment Box
+            Container(
+              width: double.infinity,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                  child: Row(
                     children: [
-                      CircleAvatar(
-                        backgroundImage: AssetImage(review["avatar"]!),
-                        radius: 20,
+                      const SizedBox(width: 8),
+
+                      // Profile Image
+                      Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage(profileImage),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                      SizedBox(width: 10),
-                      Text(
-                        review["name"],
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      const SizedBox(width: 7),
+
+                      // Comment content
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            commenterName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w200,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            comment,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  Text(review["review"]!),
-                  if (review["images"].isNotEmpty)
-                    SizedBox(
-                      height: 100,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: review["images"].map<Widget>((img) {
-                          return Padding(
-                            padding: EdgeInsets.only(right: 5),
-                            child: Image.asset(img, width: 100, height: 100),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.thumb_up),
-                            onPressed: () {},
-                          ),
-                          Text("${review["likes"]}"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.comment),
-                            onPressed: () {},
-                          ),
-                          Text("${review["comments"]}"),
-                        ],
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.image),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NavScreen()),
-          );
-        },
-        child: Icon(Icons.arrow_back),
-      ),
-
     );
   }
 }

@@ -8,17 +8,30 @@ class RightBottomButtons extends StatelessWidget {
         mainAxisSize: MainAxisSize.min, // Prevent unnecessary space
         children: [
           // Green Tick Button
-          Container(
-            width: 30,
-            height: 30,
-            child: Image.asset('assets/images/feed/size-cha.png',fit: BoxFit.contain),
+          InkWell(
+            onTap: () {
+              // Handle the tap event for Green Tick Button
+              print('Green Tick Button Pressed');
+            },
+            child: Container(
+              width: 30,
+              height: 30,
+              child: Image.asset('assets/images/feed/size-cha.png', fit: BoxFit.contain),
+            ),
           ),
           SizedBox(height: 10), // Spacing between buttons
+
           // Three Dots Button
-          Container(
-            width: 30,
-            height: 30,
-            child: Image.asset('assets/images/feed/more.png',fit: BoxFit.contain),
+          InkWell(
+            onTap: () {
+              // Handle the tap event for Three Dots Button
+              print('Three Dots Button Pressed');
+            },
+            child: Container(
+              width: 30,
+              height: 30,
+              child: Image.asset('assets/images/feed/more.png', fit: BoxFit.contain),
+            ),
           ),
         ],
       ),

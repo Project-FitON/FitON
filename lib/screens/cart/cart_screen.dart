@@ -1,4 +1,4 @@
-import 'package:fiton/screens/nav/nav_screen.dart';
+import 'package:fiton/screens/nav/nav_screen.dart'; // Import NavScreen for bottom navigation
 import 'package:flutter/material.dart';
 
 class CartScreen extends StatelessWidget {
@@ -107,8 +107,8 @@ class CartScreen extends StatelessWidget {
                             Text(
                               item['size'],
                               style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black45
+                                  fontSize: 18,
+                                  color: Colors.black45
                               ),
                             ),
                             SizedBox(height: 8),
@@ -117,7 +117,7 @@ class CartScreen extends StatelessWidget {
                                 // Decrease Quantity Button
                                 IconButton(
                                   onPressed: () {},
-                                  icon: Icon(Icons.remove_circle_outline_rounded,color:Colors.black54,),
+                                  icon: Icon(Icons.remove_circle_outline_rounded,color:Colors.black54),
                                   iconSize: 30, // Adjust icon size for better fitting
                                 ),
                                 SizedBox(width: 8), // Space between buttons
@@ -126,7 +126,7 @@ class CartScreen extends StatelessWidget {
                                 // Increase Quantity Button
                                 IconButton(
                                   onPressed: () {},
-                                  icon: Icon(Icons.add_circle_outline_rounded,color:Colors.black54,),
+                                  icon: Icon(Icons.add_circle_outline_rounded,color:Colors.black54),
                                   iconSize: 30, // Adjust size
                                 ),
                               ],
@@ -163,7 +163,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     Text('LKR.10 500.00',
                       style: TextStyle(
-                          color: Colors.black45,
+                        color: Colors.black45,
                       ),
                     ),
                   ],
@@ -180,7 +180,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     Text('LKR.250.00',
                       style: TextStyle(
-                        color: Colors.black45
+                          color: Colors.black45
                       ),
                     ),
                   ],
@@ -208,7 +208,7 @@ class CartScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: NavScreen(),
+      bottomNavigationBar: NavScreen(), // Add bottom navigation bar here
     );
   }
 }
