@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:fiton/screens/feed/feed_screen.dart';
+import 'package:fiton/screens/fashee/fashee_screen.dart';
+import 'package:fiton/screens/cart/cart_screen.dart';
+import 'package:fiton/screens/account/account_screen.dart';
 class NavigationComponent extends StatefulWidget {
   const NavigationComponent({Key? key}) : super(key: key);
 
@@ -23,6 +26,29 @@ class _NavigationComponentState extends State<NavigationComponent> {
         _isTapped = false;
       });
     });
+
+    // Handle navigation to different screens based on button name
+    if (buttonName == 'Feed') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FeedScreen()), // Navigate to FeedScreen
+      );
+    } else if (buttonName == 'Cart') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CartScreen()), // Navigate to CartScreen
+      );
+    } else if (buttonName == 'Fashee') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FasheeScreen()), // Navigate to FasheeScreen
+      );
+    } else if (buttonName == 'Profile') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AccountScreen()), // Navigate to ProfileScreen
+      );
+    }
   }
 
   @override
