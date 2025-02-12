@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class Review {
   final String reviewId;
   final String productId;
@@ -39,5 +41,15 @@ class Review {
       'likes': likes,
       'created_at': createdAt.toIso8601String(),
     };
+  }
+
+  /// Fetch all reviews from Supabase
+  static Future<List<Review>> fetchReviews() async {
+    final response = await Supabase.instance.client
+        .from('reviews')
+        .select()
+        .order('created_at', ascending: false);
+
+    return response.map<Review>((data) => Review.fromMap(data)).toList();
   }
 }

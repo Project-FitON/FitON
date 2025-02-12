@@ -30,7 +30,8 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     countColor = Colors.white;
     iconColor = Colors.white;
 
-    _fetchLikes(); // Fetch likes count from Supabase
+    _fetchLikes(); // Fetch initial likes count
+    _subscribeToRealtimeUpdates(); // Listen for live updates
   }
 
   /// Fetch likes count from Supabase
@@ -46,29 +47,34 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
         setState(() {
           favoriteCount = response["likes"] as int;
         });
-      } else {
-        setState(() {
-          favoriteCount = 0; // Default to 0 if no likes field exists
-        });
       }
     } catch (error) {
       print('Error fetching likes: $error');
     }
   }
 
+  /// Subscribe to real-time changes in Supabase
+  void _subscribeToRealtimeUpdates() {
+    supabase
+        .from('reviews')
+        .stream(primaryKey: ['review_id']) // Listen for changes based on primary key
+        .eq('review_id', widget.reviewId) // Filter to only this review
+        .listen((List<Map<String, dynamic>> data) {
+      if (data.isNotEmpty && data.first.containsKey("likes")) {
+        setState(() {
+          favoriteCount = data.first["likes"] as int;
+        });
+      }
+    });
+  }
+
   /// Toggle favorite and update Supabase
   Future<void> _toggleFavorite() async {
     setState(() {
       isTapped = !isTapped;
-      if (isTapped) {
-        favoriteCount++;
-        countColor = Colors.red;
-        iconColor = Colors.red;
-      } else {
-        favoriteCount--;
-        countColor = Colors.white;
-        iconColor = Colors.white;
-      }
+      favoriteCount = isTapped ? favoriteCount + 1 : favoriteCount - 1;
+      countColor = isTapped ? Colors.red : Colors.white;
+      iconColor = isTapped ? Colors.red : Colors.white;
     });
 
     try {
@@ -79,6 +85,12 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     } catch (error) {
       print('Error updating likes: $error');
     }
+  }
+
+  @override
+  void dispose() {
+    supabase.removeAllChannels(); // Unsubscribe from all Supabase real-time channels
+    super.dispose();
   }
 
   @override
