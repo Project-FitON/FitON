@@ -1,3 +1,4 @@
+import 'package:fiton/screens/feed/buy_now_screen.dart';
 import 'package:fiton/screens/nav/nav_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -187,7 +188,12 @@ class CartScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.purple[900],
                     minimumSize: Size(double.infinity, 50),
@@ -195,14 +201,12 @@ class CartScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    'Checkout',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
+                  child: const Text(
+                    'Go to Checkout',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
+
               ],
             ),
           ),
