@@ -1,9 +1,11 @@
-import 'tryon_components/tryon_top_download_component.dart';
-import 'tryon_components/tryon_top_back_component.dart';
-import 'tryon_components/tryon_main_buttons_component.dart';
-import 'feed_components/more_details_component.dart';
-import 'feed_components/navigation_component.dart';
 import 'package:flutter/material.dart';
+import 'package:fiton/screens/feed/tryon_components/tryon_top_back_component.dart';  // Use this import for the Back Component
+import 'package:fiton/screens/feed/tryon_components/tryon_top_download_component.dart'; // Import for the Download Component
+// Import for Main Buttons Component
+import 'package:fiton/screens/feed/tryon_components/right_bottom_buttons.dart'; // Ensure this file exists
+import 'package:fiton/screens/feed/feed_components/navigation_component.dart';
+
+import 'feed_components/main_buttons_component.dart'; // Import Navigation Component
 
 class TryOnScreen extends StatelessWidget {
   @override
@@ -11,9 +13,8 @@ class TryOnScreen extends StatelessWidget {
     return Scaffold(
       body: GestureDetector(
         onHorizontalDragEnd: (details) {
-          // Check if the swipe was towards the right
           if (details.primaryVelocity! > 0) {
-            Navigator.pop(context); // Navigate back
+            Navigator.pop(context);
           }
         },
         child: Container(
@@ -21,10 +22,12 @@ class TryOnScreen extends StatelessWidget {
           constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
           child: Stack(
             children: [
+              // Background Image
               Positioned.fill(
-                child: Image.asset('assets/images/feed/5-1.jpg',fit: BoxFit.cover),
+                child: Image.asset('assets/images/feed/5-1.jpg', fit: BoxFit.cover),
               ),
-              // Top Overlay
+
+              // Top Overlay (Back & Download Buttons)
               Positioned(
                 top: 0,
                 left: 0,
@@ -36,34 +39,29 @@ class TryOnScreen extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(1), // Fully visible at the top
-                        Colors.black.withOpacity(0.5),  // Midpoint fade
-                        Colors.black.withOpacity(0.0),  // Fully transparent at the bottom
+                        Colors.black.withOpacity(1),
+                        Colors.black.withOpacity(0.5),
+                        Colors.black.withOpacity(0.0),
                       ],
                     ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50, left: 8),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: TryOnTopBackToShoppingComponent(),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50, right: 8),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: TryOnTopDownloadComponent(),
-                          ),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50, left: 8),
+                        child: TryOnTopBackToShoppingComponent(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50, right: 8),
+                        child: TryOnTopDownloadComponent(),
+                      ),
                     ],
                   ),
                 ),
               ),
-              // Bottom Overlay
+
+              // Bottom Overlay (Main Buttons & Navigation)
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -74,9 +72,9 @@ class TryOnScreen extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(1), // Fully visible at the top
-                        Colors.black.withOpacity(0.5),  // Midpoint fade
-                        Colors.black.withOpacity(0.0),  // Fully transparent at the bottom
+                        Colors.black.withOpacity(1),
+                        Colors.black.withOpacity(0.5),
+                        Colors.black.withOpacity(0.0),
                       ],
                     ),
                   ),
@@ -85,24 +83,24 @@ class TryOnScreen extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: TryOnMainButtonsComponent(),
+                        child: MainButtonsComponent(),  // Ensure MainButtonsComponent is defined and imported
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: [                 
-                          Container(
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 9),
-                              child: RightBottomButtons(),
-                            ),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 9),
+                            child: RightBottomButtons(), // Ensure this widget exists
                           ),
                         ],
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 0),
-                        child: NavigationComponent(),
+                        child: NavigationComponent(),  // Ensure this is correctly imported
                       ),
+                      
                     ],
+
                   ),
                 ),
               ),
