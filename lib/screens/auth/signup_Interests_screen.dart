@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'login_otp_screen.dart';
+import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
 
 class SignUpInterestsScreen extends StatefulWidget {
@@ -207,6 +207,39 @@ class _SignUpInterestsScreenState extends State<SignUpInterestsScreen> {
                     padding: const EdgeInsets.all(0),
                     child: ElevatedButton(
                       onPressed: _handleSubmission,
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    return _buildCheckbox(
+                      categories[index]['emoji']!,
+                      categories[index]['text']!,
+                    );
+                  },
+                ),
+                SizedBox(height: 20),
+                // Button
+                Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => FeedScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(1.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.ease;
+
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1B0331),
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
