@@ -1,5 +1,9 @@
+
 import 'package:fiton/models/cart_model.dart'; // Import your Cart model
 import 'package:fiton/screens/nav/nav_screen.dart';
+
+import 'package:fiton/screens/nav/nav_screen.dart'; // Import NavScreen for bottom navigation
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -285,8 +289,50 @@ class _CartScreenState extends State<CartScreen> {
                             ],
                           ),
                         ),
+
                       );
                     },
+                        // Quantity Controls and Delete Button
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              item['size'],
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black45
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                // Decrease Quantity Button
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.remove_circle_outline_rounded,color:Colors.black54),
+                                  iconSize: 30, // Adjust icon size for better fitting
+                                ),
+                                SizedBox(width: 8), // Space between buttons
+                                Text('1', style: TextStyle(fontSize: 16,color: Colors.black45)),
+                                SizedBox(width: 8),
+                                // Increase Quantity Button
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.add_circle_outline_rounded,color:Colors.black54),
+                                  iconSize: 30, // Adjust size
+                                ),
+                              ],
+                            ),
+                            // Delete Button
+                            IconButton(
+                              onPressed: () {},
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              iconSize: 20, // Adjust icon size
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
           ),
 
@@ -301,6 +347,18 @@ class _CartScreenState extends State<CartScreen> {
                     Text('Sub total', style: TextStyle(color: Colors.black)),
                     Text('\$${total.toStringAsFixed(2)}',
                         style: TextStyle(color: Colors.black45)),
+
+                    Text(
+                      'Sub total',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text('LKR.10 500.00',
+                      style: TextStyle(
+                        color: Colors.black45,
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 8),
@@ -309,6 +367,17 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     Text('Shipping', style: TextStyle(color: Colors.black)),
                     Text('\$5.00', style: TextStyle(color: Colors.black45)),
+                    Text(
+                      'Shipping',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text('LKR.250.00',
+                      style: TextStyle(
+                          color: Colors.black45
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 16),
@@ -331,7 +400,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: NavScreen(),
+      bottomNavigationBar: NavScreen(), // Add bottom navigation bar here
     );
   }
 }
