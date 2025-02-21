@@ -1,4 +1,3 @@
-
 import 'package:fiton/models/cart_model.dart'; // Import your Cart model
 import 'package:fiton/screens/nav/nav_screen.dart';
 
@@ -395,6 +394,7 @@ class _CartScreenState extends State<CartScreen> {
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
+
               ],
             ),
           ),

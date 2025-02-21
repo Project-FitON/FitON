@@ -44,7 +44,6 @@ class FitOn extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-      home: CartScreen(), // Displaying CartScreen as the home screen
       home: OnboardingScreen(),
     );
   }
