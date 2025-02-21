@@ -2,6 +2,9 @@ import 'package:fiton/screens/cart/cart_screen.dart'; // Importing CartScreen
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
 void main() async {
   // Ensure that Flutter binding is initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +15,7 @@ void main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ldHJ1dm1sb29ndGJicmRqZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODkxOTQsImV4cCI6MjA1MzU2NTE5NH0.75FTVi-mQT8JEMIdqNTkN7--Hg1GCuqFydrBnmYzl0o', // Your Supabase anon key
   );
+  runApp(const FitOnApp());
 
   runApp(const FitOn());
 
