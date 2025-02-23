@@ -1,20 +1,21 @@
-import 'dart:ui';
-import 'onboarding_screen.dart';
+import 'dart:ui'; 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'onboarding_screen.dart'; 
 
 class LoginOtpScreen extends StatefulWidget {
-  final String name;
-  
+  final String phoneNumber;
+
   const LoginOtpScreen({
     Key? key,
-    this.name = 'Nimesha', // Default value
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
-  State<LoginOtpScreen> createState() => _OtpScreenState();
+  State<LoginOtpScreen> createState() => _LoginOtpScreenState();
 }
 
-class _OtpScreenState extends State<LoginOtpScreen> {
+class _LoginOtpScreenState extends State<LoginOtpScreen> {
   final List<TextEditingController> _controllers = List.generate(
     4,
     (index) => TextEditingController(),
@@ -24,7 +25,8 @@ class _OtpScreenState extends State<LoginOtpScreen> {
     (index) => FocusNode(),
   );
 
-  int _timerSeconds = 59;
+  final int _timerSeconds = 59;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
         setState(() {});
       });
     }
+    _sendOtp(); // Send OTP automatically when the screen loads
   }
 
   @override
@@ -50,6 +53,69 @@ class _OtpScreenState extends State<LoginOtpScreen> {
   void _onOtpDigitChanged(int index, String value) {
     if (value.length == 1 && index < 3) {
       _focusNodes[index + 1].requestFocus();
+    }
+  }
+
+  Future<void> _sendOtp() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Send OTP using Supabase
+      await Supabase.instance.client.auth.signInWithOtp(
+        phone: widget.phoneNumber,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('OTP sent to ${widget.phoneNumber}')),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send OTP: $e')),
+      );
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Combine OTP digits
+      final otp = _controllers.map((controller) => controller.text).join();
+
+      // Verify OTP using Supabase
+      await Supabase.instance.client.auth.verifyOTP(
+        phone: widget.phoneNumber,
+        token: otp,
+        type: OtpType.sms,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Navigate to the next screen after successful verification
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => OnboardingScreen()),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to verify OTP: $e')),
+      );
     }
   }
 
@@ -82,10 +148,10 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                       child: Container(
                         width: 631.72,
                         height: 631.72,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: Image.asset('assets/images/auth/blur-cir.png',fit: BoxFit.cover),
+                        child: Image.asset('assets/images/auth/blur-cir.png', fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -93,7 +159,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
 
                 // Gradient Overlay
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -112,29 +178,29 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                    Row(
+                      Row(
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [ 
-                              Row ( 
+                            children: [
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Welcome back\n${widget.name} !!!',
-                                    style: TextStyle(
+                                    'Welcome back\n${widget.phoneNumber} !!!',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 40,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
                                   Padding(
-                                    padding: EdgeInsets.only(left: 10, bottom: 8), 
-                                    child: Image.asset('assets/images/auth/bot.png',width: 50,height: 50),
+                                    padding: const EdgeInsets.only(left: 10, bottom: 8),
+                                    child: Image.asset('assets/images/auth/bot.png', width: 50, height: 50),
                                   )
                                 ],
                               ),
-                              Text(
+                              const Text(
                                 'Please type the OTP I sent...',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -146,7 +212,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(
@@ -164,8 +230,8 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                               textAlign: TextAlign.center,
                               keyboardType: TextInputType.number,
                               maxLength: 1,
-                              style: TextStyle(color: Colors.white, fontSize: 24),
-                              decoration: InputDecoration(
+                              style: const TextStyle(color: Colors.white, fontSize: 24),
+                              decoration: const InputDecoration(
                                 counterText: '',
                                 border: InputBorder.none,
                               ),
@@ -174,58 +240,36 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       // Button
-                           ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => OnboardingScreen(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.ease;
-
-                                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1B0331),
-                          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _verifyOtp,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1B0331),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          minimumSize: Size(319, 49),
+                          minimumSize: const Size(319, 49),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Let's FitOn",
-                              style: TextStyle(
-                                color: Color(0xFFFAFBFC),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
+                        child: _isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text(
+                                "Let's FitOn",
+                                style: TextStyle(
+                                  color: Color(0xFFFAFBFC),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
+                            const Text(
                               'Not received? Please wait ',
                               style: TextStyle(
                                 color: Colors.white,
@@ -235,7 +279,7 @@ class _OtpScreenState extends State<LoginOtpScreen> {
                             ),
                             Text(
                               '0:$_timerSeconds',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w300,
