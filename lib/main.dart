@@ -1,3 +1,4 @@
+import 'package:fiton/screens/account/notifications_screen.dart';
 import 'package:fiton/screens/add/add_dependents_screen.dart';
 import 'package:fiton/screens/add/dependents_screen.dart';
 import 'package:fiton/screens/cart/cart_screen.dart';
@@ -24,7 +25,7 @@ class FitOn extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
       home: Scaffold(
-        body: DependentsScreen(),
+        body: FeedScreen(),
         ),
     );
   }
