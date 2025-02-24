@@ -1,6 +1,9 @@
 import 'package:fiton/screens/cart/cart_screen.dart'; // Importing CartScreen
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'screens/auth/onboarding_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,10 +21,7 @@ void main() async {
   runApp(const FitOnApp());
 
   runApp(const FitOn());
-
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'screens/auth/onboarding_screen.dart';
+  
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is ready
 
