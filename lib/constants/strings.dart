@@ -1,0 +1,1 @@
+// Strings used across the app.
