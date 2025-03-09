@@ -52,7 +52,7 @@ class NavScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FasheeScreen()), // Navigate to FasheeScreen
+                  MaterialPageRoute(builder: (context) => FasheeHomePage()), // Navigate to FasheeScreen
                 );
               },
               icon: Column(
