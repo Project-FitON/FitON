@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:fiton/screens/auth/login_otp_screen.dart';
 import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -207,15 +208,19 @@ class _SignUpInterestsScreenState extends State<SignUpInterestsScreen> {
                     padding: const EdgeInsets.all(0),
                     child: ElevatedButton(
                       onPressed: _handleSubmission,
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    return _buildCheckbox(
-                      categories[index]['emoji']!,
-                      categories[index]['text']!,
-                    );
-                  },
+                    child: const Text(
+                      "Submit",
+                      style: TextStyle(
+                        color: Color(0xFFFAFBFC),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Poppins',
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // Button
                 Padding(
                   padding: const EdgeInsets.all(0),

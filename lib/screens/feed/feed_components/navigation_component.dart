@@ -41,7 +41,7 @@ class _NavigationComponentState extends State<NavigationComponent> {
     } else if (buttonName == 'Fashee') {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => FasheeScreen()), // Navigate to FasheeScreen
+        MaterialPageRoute(builder: (context) => FasheeHomePage()), // Navigate to FasheeScreen
       );
     } else if (buttonName == 'Profile') {
       Navigator.push(
