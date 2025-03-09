@@ -1,4 +1,5 @@
-import 'package:fiton/screens/cart/cart_screen.dart';  // Import CartScreen
+import 'package:fiton/screens/add/dependents_screen.dart';
+import 'package:fiton/screens/cart/cart_screen.dart'; // Import CartScreen
 import 'package:fiton/screens/fashee/fashee_screen.dart';
 import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,13 +19,18 @@ class NavScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FeedScreen()), // Navigate to FeedScreen
+                  MaterialPageRoute(
+                    builder: (context) => FeedScreen(),
+                  ), // Navigate to FeedScreen
                 );
               },
               icon: Column(
                 children: [
                   Icon(Icons.home_outlined, size: 22, color: Colors.black),
-                  Text('Feed', style: TextStyle(fontSize: 12, color: Colors.black)),
+                  Text(
+                    'Feed',
+                    style: TextStyle(fontSize: 12, color: Colors.black),
+                  ),
                 ],
               ),
             ),
@@ -32,33 +38,55 @@ class NavScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CartScreen()), // Navigate to CartScreen
+                  MaterialPageRoute(
+                    builder: (context) => CartScreen(),
+                  ), // Navigate to CartScreen
                 );
               },
               icon: Column(
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 22, color: Colors.black),
-                  Text('Cart', style: TextStyle(fontSize: 12, color: Colors.black)),
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 22,
+                    color: Colors.black,
+                  ),
+                  Text(
+                    'Cart',
+                    style: TextStyle(fontSize: 12, color: Colors.black),
+                  ),
                 ],
               ),
             ),
             IconButton(
               onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DependentsScreen()),
+                );
                 // Action for add button
               },
-              icon: Icon(Icons.add_circle_outline, size: 45, color: Colors.black),
+              icon: Icon(
+                Icons.add_circle_outline,
+                size: 45,
+                color: Colors.black,
+              ),
             ),
             IconButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FasheeHomePage()), // Navigate to FasheeScreen
+                  MaterialPageRoute(
+                    builder: (context) => FasheeHomePage(),
+                  ), // Navigate to FasheeScreen
                 );
               },
               icon: Column(
                 children: [
                   Icon(Icons.message_outlined, size: 22, color: Colors.black),
-                  Text('Fashee', style: TextStyle(fontSize: 12, color: Colors.black)),
+                  Text(
+                    'Fashee',
+                    style: TextStyle(fontSize: 12, color: Colors.black),
+                  ),
                 ],
               ),
             ),
@@ -66,13 +94,18 @@ class NavScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AccountScreen()), // Navigate to ProfileScreen
+                  MaterialPageRoute(
+                    builder: (context) => AccountScreen(),
+                  ), // Navigate to ProfileScreen
                 );
               },
               icon: Column(
                 children: [
                   Icon(Icons.person_outline, size: 22, color: Colors.black),
-                  Text('Profile', style: TextStyle(fontSize: 12, color: Colors.black)),
+                  Text(
+                    'Profile',
+                    style: TextStyle(fontSize: 12, color: Colors.black),
+                  ),
                 ],
               ),
             ),

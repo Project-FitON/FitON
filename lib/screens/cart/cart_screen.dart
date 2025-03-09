@@ -150,7 +150,7 @@ class _CartScreenState extends State<CartScreen> {
           Container(
             height: 120,
             decoration: BoxDecoration(
-              color: Colors.purple[900],
+              color: Color (0xFF1B0331),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30),
@@ -315,7 +315,7 @@ class _CartScreenState extends State<CartScreen> {
                 ElevatedButton(
                   onPressed: checkout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple[900],
+                    backgroundColor: Color(0xFF1B0331),
                     minimumSize: Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
