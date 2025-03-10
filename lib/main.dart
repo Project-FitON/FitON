@@ -1,4 +1,5 @@
 import 'package:fiton/screens/account/notifications_screen.dart';
+import 'package:fiton/screens/add/add_dependents_screen.dart';
 import 'package:fiton/screens/add/dependents_screen.dart';
 import 'package:fiton/screens/cart/cart_screen.dart';
 import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
@@ -32,7 +33,7 @@ class FitOn extends StatelessWidget {
       ),
 
       home: Scaffold(
-        body: OnboardingScreen(),
+        body: FeedScreen(),
         ),
     );
   }
