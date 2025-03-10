@@ -1,3 +1,4 @@
+import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
 import 'package:fiton/screens/fashee/fashee_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +29,7 @@ class FitOn extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
 
-      home: Scaffold(body: OnboardingScreen()), 
+      home: Scaffold(body: FasheeHomePage()), 
     );
   }
 }
