@@ -5,17 +5,17 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: _buildNotificationList(),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(120),
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFF2D0C57),
+          color: Color(0xFF1B0331),
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(62),
             bottomRight: Radius.circular(62),
@@ -29,7 +29,9 @@ class NotificationScreen extends StatelessWidget {
                 elevation: 0,
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +151,6 @@ class NotificationScreen extends StatelessWidget {
                     color: Color(0xFF2D0C57),
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-
                   ),
                 ),
                 SizedBox(height: 4),

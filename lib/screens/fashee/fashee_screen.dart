@@ -2,6 +2,8 @@ import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
 import 'package:fiton/screens/feed/nav_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../feed/nav_screen.dart';
+
 class FasheeHomePage extends StatelessWidget {
   FasheeHomePage({super.key});
 
