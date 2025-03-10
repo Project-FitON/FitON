@@ -1,25 +1,27 @@
+import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
+import 'package:fiton/screens/feed/nav_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../feed/nav_screen.dart';
 
 class FasheeHomePage extends StatelessWidget {
-  const FasheeHomePage({super.key});
+  FasheeHomePage({super.key});
+
+  final TextEditingController _textController = TextEditingController(); // Controller added
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        // Added ScrollView here
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [ 
+              colors: [
                 const Color.fromARGB(255, 180, 201, 237),
-                const Color.fromARGB(255, 255, 255, 255), // Start color
-                // End color
+                const Color.fromARGB(255, 255, 255, 255),
               ],
             ),
           ),
@@ -27,25 +29,23 @@ class FasheeHomePage extends StatelessWidget {
             children: [
               Stack(
                 children: [
+                  // ✅ **Fixed: Clickable Menu Button**
                   Container(
                     padding: EdgeInsets.all(8),
-                    margin: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ), // Space around the icon
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(
-                        255,
-                        255,
-                        255,
-                        255,
-                      ).withOpacity(0.3), // Background color
-                      borderRadius: BorderRadius.circular(
-                        50,
-                      ), // Rounded corners
+                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(50),
                     ),
-                    child: Icon(Icons.menu, color: Colors.black, size: 40),
+                    child: IconButton(
+                      icon: Icon(Icons.menu, color: Colors.black, size: 40),
+                      onPressed: () {
+                        // **Action when clicking the button**
+                        print("Menu button clicked!"); // Replace this with any action
+                      },
+                    ),
                   ),
+
                   Positioned(
                     top: 0,
                     left: 180,
@@ -54,9 +54,7 @@ class FasheeHomePage extends StatelessWidget {
                       height: 150,
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 26, 5, 63),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(100),
-                        ),
+                        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(100)),
                       ),
                       child: const Padding(
                         padding: EdgeInsets.only(top: 50, right: 20),
@@ -65,11 +63,7 @@ class FasheeHomePage extends StatelessWidget {
                           child: Text(
                             'Fashee here,\nNimasha !!!',
                             textAlign: TextAlign.right,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ),
                       ),
@@ -90,10 +84,7 @@ class FasheeHomePage extends StatelessWidget {
                         ),
                         const Text(
                           "Let's explore the fashion...",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                         const SizedBox(height: 10),
                         Padding(
@@ -112,14 +103,13 @@ class FasheeHomePage extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                const Expanded(
+                                Expanded(
                                   child: TextField(
-                                    decoration: InputDecoration(
+                                    controller: _textController, // Controller linked here
+                                    decoration: const InputDecoration(
                                       hintText: 'Ask Me Anything...',
                                       border: InputBorder.none,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                      ),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
                                     ),
                                   ),
                                 ),
@@ -130,11 +120,15 @@ class FasheeHomePage extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
-                                    icon: const Icon(
-                                      Icons.send,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {},
+                                    icon: const Icon(Icons.send, color: Colors.white),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatScreen(),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ],
@@ -146,10 +140,10 @@ class FasheeHomePage extends StatelessWidget {
                           spacing: 10,
                           runSpacing: 10,
                           alignment: WrapAlignment.center,
-                          children: const [
-                            CustomButton(text: 'I have a wedding'),
-                            CustomButton(text: 'Match my clothes'),
-                            CustomButton(text: 'Planned to color my hair'),
+                          children: [
+                            CustomButton(text: 'I have a wedding', controller: _textController),
+                            CustomButton(text: 'Match my clothes', controller: _textController),
+                            CustomButton(text: 'Planned to color my hair', controller: _textController),
                           ],
                         ),
                       ],
@@ -157,9 +151,7 @@ class FasheeHomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 20,
-              ), // Added space to prevent bottom overlap
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -169,9 +161,12 @@ class FasheeHomePage extends StatelessWidget {
   }
 }
 
+// **Custom Button**
 class CustomButton extends StatelessWidget {
   final String text;
-  const CustomButton({super.key, required this.text});
+  final TextEditingController controller;
+
+  const CustomButton({super.key, required this.text, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +176,9 @@ class CustomButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
       ),
-      onPressed: () {},
+      onPressed: () {
+        controller.text = text;
+      },
       child: Text(text, style: const TextStyle(color: Colors.black)),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fiton/screens/fashee/fashee_screen.dart';
 
 void main() {
-  runApp(ChatApp());
+  runApp(const ChatApp());
 }
 
 class ChatApp extends StatelessWidget {
@@ -46,8 +47,34 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         messages.add({"isUser": true, "text": _controller.text});
       });
+
+      String userMessage = _controller.text.toLowerCase();
       _controller.clear();
+
+      // Simulate bot response after a short delay
+      Future.delayed(Duration(milliseconds: 500), () {
+        _botReply(userMessage);
+      });
     }
+  }
+
+  void _botReply(String userMessage) {
+    String botResponse;
+
+    // Simple bot response logic
+    if (userMessage.contains("hello") || userMessage.contains("hi")) {
+      botResponse = "Hello! How can I help you today? 😊";
+    } else if (userMessage.contains("wedding")) {
+      botResponse = "Looking for wedding outfits? I can suggest some great options! 👗";
+    } else if (userMessage.contains("thank you")) {
+      botResponse = "You're welcome! Let me know if you need more help. 😊";
+    } else {
+      botResponse = "I'm here to assist you! Ask me anything. ";
+    }
+
+    setState(() {
+      messages.add({"isUser": false, "text": botResponse});
+    });
   }
 
   @override
@@ -56,32 +83,39 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: Container(
-          padding: EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
             color: Colors.grey.shade200,
             shape: BoxShape.circle,
             boxShadow: [
-              BoxShadow(
+              const BoxShadow(
                 color: Colors.black26,
-                blurRadius:5,
+                blurRadius: 5,
                 spreadRadius: 1,
                 offset: Offset(0, 2),
               ),
             ],
           ),
           child: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-            onPressed: () {},
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FasheeHomePage(),
+                ),
+              );
+            },
           ),
         ),
         actions: [
           Container(
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(
+                const BoxShadow(
                   color: Colors.black26,
                   blurRadius: 4,
                   spreadRadius: 1,
@@ -90,18 +124,18 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             child: IconButton(
-              icon: Icon(Icons.add, color: Colors.black),
+              icon: const Icon(Icons.add, color: Colors.black),
               onPressed: () {},
             ),
           ),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Container(
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(
+                const BoxShadow(
                   color: Colors.black26,
                   blurRadius: 4,
                   spreadRadius: 1,
@@ -110,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             child: IconButton(
-              icon: Icon(Icons.menu, color: Colors.black),
+              icon: const Icon(Icons.menu, color: Colors.black),
               onPressed: () {},
             ),
           ),
@@ -121,89 +155,86 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child:
-                  messages.isNotEmpty
-                      ? ListView.builder(
-                        padding: EdgeInsets.all(10),
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          final message = messages[index];
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment:
-                                  message["isUser"]
-                                      ? MainAxisAlignment.end
-                                      : MainAxisAlignment.start,
-                              children: [
-                                if (!message["isUser"])
-                                  CircleAvatar(
-                                    backgroundImage: AssetImage(
-                                      "assets/images/feed/mm.png",
-                                    ),
-                                  ),
-                                SizedBox(width: 8),
-                                Flexible(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          message["isUser"]
-                                              ? Colors.purple.shade800
-                                              : Colors.grey.shade300,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          message["text"],
-                                          style: TextStyle(
-                                            color:
-                                                message["isUser"]
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                          ),
-                                        ),
-                                        if (message["image"] != null)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 5,
-                                            ),
-                                            child: Image.asset(
-                                              message["image"],
-                                              width: 150,
-                                              height: 150,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
+              child: messages.isNotEmpty
+                  ? ListView.builder(
+                      padding: const EdgeInsets.all(10),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messages[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: message["isUser"]
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
+                            children: [
+                              if (!message["isUser"])
+                                const CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    "assets/images/feed/mm.png", // Bot Image
                                   ),
                                 ),
-                                SizedBox(width: 8),
-                                if (message["isUser"])
-                                  CircleAvatar(
-                                    backgroundImage: AssetImage(
-                                      "FitON/assets/images/feed/girl.jpeg",
-                                    ),
+                              if (!message["isUser"]) const SizedBox(width: 8),
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
                                   ),
-                              ],
-                            ),
-                          );
-                        },
-                      )
-                      : Center(
-                        child: Text("No messages yet! Start chatting..."),
-                      ),
+                                  decoration: BoxDecoration(
+                                    color: message["isUser"]
+                                        ? Colors.purple.shade800
+                                        : Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        message["text"],
+                                        style: TextStyle(
+                                          color: message["isUser"]
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                      if (message["image"] != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 5,
+                                          ),
+                                          child: Image.asset(
+                                            message["image"],
+                                            width: 150,
+                                            height: 150,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if (message["isUser"]) const SizedBox(width: 8),
+                              if (message["isUser"])
+                                const CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    "assets/images/feed/girl.jpeg", // User Image
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    )
+                  : const Center(
+                      child: Text("No messages yet! Start chatting..."),
+                    ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -221,10 +252,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     Expanded(
                       child: TextField(
                         controller: _controller,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Ask Me Anything...',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 20),
                         ),
                       ),
                     ),
