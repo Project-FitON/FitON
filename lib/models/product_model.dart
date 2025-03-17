@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class ProductModel {
+class Products {
   final String productId;
   final String shopId;
   final String name;
@@ -16,7 +16,7 @@ class ProductModel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  ProductModel({
+  Products({
     required this.productId,
     required this.shopId,
     required this.name,
@@ -33,8 +33,8 @@ class ProductModel {
     required this.updatedAt,
   });
 
-  factory ProductModel.fromJson(Map<String, dynamic> json) {
-    return ProductModel(
+  factory Products.fromJson(Map<String, dynamic> json) {
+    return Products(
       productId: json['product_id'],
       shopId: json['shop_id'],
       name: json['name'],
