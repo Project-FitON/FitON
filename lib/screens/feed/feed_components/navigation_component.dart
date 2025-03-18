@@ -22,31 +22,33 @@ class _NavigationComponentState extends State<NavigationComponent> {
 
     // After 300ms, revert back to normal
     Future.delayed(Duration(milliseconds: 300), () {
-      setState(() {
-        _isTapped = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isTapped = false;
+        });
+      }
     });
 
     // Handle navigation to different screens based on button name
     if (buttonName == 'Feed') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => FeedScreen()), // Navigate to FeedScreen
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => FeedScreen()),
+        (route) => false,
       );
     } else if (buttonName == 'Cart') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CartScreen()), // Navigate to CartScreen
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => CartScreen()),
+        (route) => false,
       );
     } else if (buttonName == 'Fashee') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => FasheeScreen()), // Navigate to FasheeScreen
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => FasheeScreen()),
+        (route) => false,
       );
     } else if (buttonName == 'Profile') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AccountScreen()), // Navigate to ProfileScreen
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => AccountScreen()),
+        (route) => false,
       );
     }
   }

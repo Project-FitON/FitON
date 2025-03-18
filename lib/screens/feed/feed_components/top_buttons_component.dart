@@ -3,6 +3,20 @@ import 'package:flutter/material.dart';
 class TopButtonsComponent extends StatelessWidget {
   const TopButtonsComponent({Key? key}) : super(key: key);
 
+  void _handleSearch(BuildContext context) {
+    // TODO: Implement search functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Search feature coming soon!')),
+    );
+  }
+
+  void _handleRecommendations(BuildContext context) {
+    // TODO: Implement recommendations functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Recommendations feature coming soon!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,25 +27,29 @@ class TopButtonsComponent extends StatelessWidget {
         children: [
           // Search Button
           InkWell(
-            onTap: () {
-              // Handle search tap
-            },
+            onTap: () => _handleSearch(context),
             child: Container(
               width: 30,
               height: 29,
-              child: Image.asset('assets/images/feed/search.png', fit: BoxFit.contain),
+              child: Image.asset(
+                'assets/images/feed/search.png',
+                fit: BoxFit.contain,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(width: 10),
           // Recommendations Button
           InkWell(
-            onTap: () {
-              // Handle recommendations tap
-            },
+            onTap: () => _handleRecommendations(context),
             child: Container(
               width: 30,
               height: 30,
-              child: Image.asset('assets/images/feed/for-icon.png', fit: BoxFit.contain),
+              child: Image.asset(
+                'assets/images/feed/for-icon.png',
+                fit: BoxFit.contain,
+                color: Colors.white,
+              ),
             ),
           ),
         ],

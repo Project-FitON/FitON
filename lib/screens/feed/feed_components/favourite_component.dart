@@ -3,11 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FavouriteComponent extends StatefulWidget {
   final String reviewId;
+  final String productId;
   final int initialFavoriteCount;
 
   const FavouriteComponent({
     Key? key,
     required this.reviewId,
+    required this.productId,
     this.initialFavoriteCount = 0,
   }) : super(key: key);
 
@@ -17,9 +19,8 @@ class FavouriteComponent extends StatefulWidget {
 
 class _FavouriteComponentState extends State<FavouriteComponent> {
   late int favoriteCount;
-  late Color countColor;
-  late Color iconColor;
   bool isTapped = false;
+  bool isLoading = false;
 
   final SupabaseClient supabase = Supabase.instance.client;
 
@@ -27,11 +28,7 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
   void initState() {
     super.initState();
     favoriteCount = widget.initialFavoriteCount;
-    countColor = Colors.white;
-    iconColor = Colors.white;
-
-    _fetchLikes(); // Fetch initial likes count
-    _subscribeToRealtimeUpdates(); // Listen for live updates
+    _fetchLikes();
   }
 
   /// Fetch likes count from Supabase
@@ -41,11 +38,11 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
           .from('reviews')
           .select('likes')
           .eq('review_id', widget.reviewId)
-          .maybeSingle(); // Returns null if no data
+          .single();
 
-      if (response != null && response.containsKey("likes")) {
+      if (mounted && response != null) {
         setState(() {
-          favoriteCount = response["likes"] as int;
+          favoriteCount = response['likes'] ?? 0;
         });
       }
     } catch (error) {
@@ -53,44 +50,49 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     }
   }
 
-  /// Subscribe to real-time changes in Supabase
-  void _subscribeToRealtimeUpdates() {
-    supabase
-        .from('reviews')
-        .stream(primaryKey: ['review_id']) // Listen for changes based on primary key
-        .eq('review_id', widget.reviewId) // Filter to only this review
-        .listen((List<Map<String, dynamic>> data) {
-      if (data.isNotEmpty && data.first.containsKey("likes")) {
-        setState(() {
-          favoriteCount = data.first["likes"] as int;
-        });
-      }
-    });
-  }
-
   /// Toggle favorite and update Supabase
   Future<void> _toggleFavorite() async {
+    if (isLoading) return;
+
     setState(() {
-      isTapped = !isTapped;
-      favoriteCount = isTapped ? favoriteCount + 1 : favoriteCount - 1;
-      countColor = isTapped ? Colors.red : Colors.white;
-      iconColor = isTapped ? Colors.red : Colors.white;
+      isLoading = true;
     });
 
     try {
+      // Toggle state first
+      final newIsTapped = !isTapped;
+      final newLikes = newIsTapped ? favoriteCount + 1 : favoriteCount - 1;
+      final finalLikes = newLikes >= 0 ? newLikes : 0;
+
+      // Update reviews table
       await supabase
           .from('reviews')
-          .update({'likes': favoriteCount})
+          .update({'likes': finalLikes})
           .eq('review_id', widget.reviewId);
+
+      // Update products table
+      await supabase
+          .from('products')
+          .update({'likes': finalLikes})
+          .eq('product_id', widget.productId);
+
+      // Update local state
+      setState(() {
+        isTapped = newIsTapped;
+        favoriteCount = finalLikes;
+      });
     } catch (error) {
       print('Error updating likes: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update likes. Please try again.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
-  }
-
-  @override
-  void dispose() {
-    supabase.removeAllChannels(); // Unsubscribe from all Supabase real-time channels
-    super.dispose();
   }
 
   @override
@@ -98,7 +100,6 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     double screenWidth = MediaQuery.of(context).size.width;
     double componentWidth = screenWidth * 0.1;
 
-    // Format the favorite count for display
     String formattedCount = favoriteCount < 1000
         ? favoriteCount.toString()
         : (favoriteCount / 1000).toStringAsFixed(1) + 'K';
@@ -119,16 +120,25 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
             Container(
               width: componentWidth,
               height: componentWidth,
-              child: ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  iconColor,
-                  BlendMode.srcIn,
-                ),
-                child: Image.asset(
-                  'assets/images/feed/favourit.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
+              child: isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        isTapped ? Colors.red : Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                      child: Image.asset(
+                        'assets/images/feed/favourit.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -137,7 +147,7 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
                 fontFamily: 'Inter',
                 fontSize: screenWidth * 0.04,
                 fontWeight: FontWeight.w400,
-                color: countColor,
+                color: isTapped ? Colors.red : Colors.white,
               ),
             ),
           ],

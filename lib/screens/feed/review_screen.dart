@@ -4,6 +4,7 @@ import 'feed_components/favourite_component.dart';
 
 class ReviewsComponent extends StatelessWidget {
   final String reviewId; // Required to connect with Supabase
+  final String productId; // Add productId parameter
   final String commenterName;
   final String comment;
   final int likes; // Changed type to int for consistency
@@ -14,6 +15,7 @@ class ReviewsComponent extends StatelessWidget {
   const ReviewsComponent({
     Key? key,
     required this.reviewId, // Now required to link to Supabase
+    required this.productId, // Add required productId
     this.commenterName = 'Hasitha Nadun 24',
     this.comment = 'Highly Recommended!',
     this.likes = 1300, // Default likes count
@@ -53,6 +55,7 @@ class ReviewsComponent extends StatelessWidget {
                 // Likes count + FavouriteComponent
                 FavouriteComponent(
                   reviewId: reviewId,
+                  productId: productId,
                   initialFavoriteCount: likes, // Dynamic likes count
                 ),
               ],

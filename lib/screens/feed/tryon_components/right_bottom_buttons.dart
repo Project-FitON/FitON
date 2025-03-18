@@ -1,19 +1,38 @@
 import 'package:flutter/material.dart';
 
-class RightBottomButtons extends StatelessWidget {
+class TryOnRightBottomButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          icon: Icon(Icons.favorite, color: Colors.red),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: Icon(Icons.share, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
+    return Container(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Size Check Button
+          InkWell(
+            onTap: () {
+              print('Size Check Button Pressed');
+            },
+            child: Container(
+              width: 30,
+              height: 30,
+              child: Image.asset('assets/images/feed/size-cha.png', fit: BoxFit.contain),
+            ),
+          ),
+          SizedBox(height: 10),
+
+          // More Options Button
+          InkWell(
+            onTap: () {
+              print('More Options Button Pressed');
+            },
+            child: Container(
+              width: 30,
+              height: 30,
+              child: Image.asset('assets/images/feed/more.png', fit: BoxFit.contain),
+            ),
+          ),
+        ],
+      ),
     );
   }
-}
+} 

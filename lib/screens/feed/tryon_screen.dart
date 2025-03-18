@@ -5,9 +5,21 @@ import 'package:fiton/screens/feed/tryon_components/tryon_top_download_component
 import 'package:fiton/screens/feed/tryon_components/right_bottom_buttons.dart'; // Ensure this file exists
 import 'package:fiton/screens/feed/feed_components/navigation_component.dart';
 
-import 'feed_components/main_buttons_component.dart'; // Import Navigation Component
+import 'feed_components/main_buttons_component.dart';
+import 'feed_components/more_details_component.dart'; // Import Navigation Component
 
 class TryOnScreen extends StatelessWidget {
+  final String shopId;
+  final String productId;
+  final double price;
+
+  const TryOnScreen({
+    Key? key,
+    required this.shopId,
+    required this.productId,
+    required this.price,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,24 +95,27 @@ class TryOnScreen extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: MainButtonsComponent(),  // Ensure MainButtonsComponent is defined and imported
+                        child: MainButtonsComponent(
+                          shopId: shopId,
+                          productId: productId,
+                          price: price,
+                          onFollowSuccess: () {},
+                        ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(right: 9),
-                            child: RightBottomButtons(), // Ensure this widget exists
+                            child: RightBottomButtons(),
                           ),
                         ],
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 0),
-                        child: NavigationComponent(),  // Ensure this is correctly imported
+                        child: NavigationComponent(),
                       ),
-                      
                     ],
-
                   ),
                 ),
               ),

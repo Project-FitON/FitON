@@ -2,7 +2,8 @@ import 'package:fiton/screens/cart/cart_screen.dart'; // Import CartScreen
 import 'package:flutter/material.dart';
 import 'package:fiton/screens/account/account_screen.dart';
 import 'feed_screen.dart';
-import 'package:fiton/screens/fashee/fashee_screen.dart';
+import 'package:fiton/screens/fashee/fashee_screen.dart';  // This imports FasheeHomePage
+
 class NavScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -15,9 +16,9 @@ class NavScreen extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FeedScreen()), // Navigate to FeedScreen (example)
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => FeedScreen()),
+                  (route) => false,
                 );
               },
               icon: Column(
@@ -29,9 +30,9 @@ class NavScreen extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CartScreen()), // Navigate to CartScreen
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => CartScreen()),
+                  (route) => false,
                 );
               },
               icon: Column(
@@ -49,9 +50,9 @@ class NavScreen extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FasheeScreen()), // Navigate to FasheeScreen (example)
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => FasheeScreen()),
+                  (route) => false,
                 );
               },
               icon: Column(
@@ -63,9 +64,9 @@ class NavScreen extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AccountScreen()), // Navigate to ProfileScreen (example)
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => AccountScreen()),
+                  (route) => false,
                 );
               },
               icon: Column(
