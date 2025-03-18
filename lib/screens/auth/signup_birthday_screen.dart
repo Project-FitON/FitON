@@ -1,17 +1,20 @@
 import 'dart:ui';
-import 'signup_otp_screen.dart';
+import 'signup_Interests_screen.dart'; 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpBirthdayScreen extends StatefulWidget {
   final String buyerId;
   final String nickname;
   final String gender;
+  final String email;
 
   const SignUpBirthdayScreen({
     super.key,
     required this.buyerId,
     required this.nickname,
     required this.gender,
+    required this.email,
   });
 
   @override
@@ -23,33 +26,48 @@ class _SignUpBirthdayScreenState extends State<SignUpBirthdayScreen> {
   int selectedYear = DateTime.now().year;
   int selectedMonth = DateTime.now().month;
   int selectedDay = DateTime.now().day;
+  final SupabaseClient _supabase = Supabase.instance.client; 
 
-  void _handleSubmission() {
-    final birthday = DateTime(selectedYear, selectedMonth, selectedDay);
+  Future<void> _handleSubmission() async {
+    final dateOfBirth = DateTime(selectedYear, selectedMonth, selectedDay);
 
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SignUpOtpScreen(
-          buyerId: widget.buyerId,
-          nickname: widget.nickname,
-          gender: widget.gender,
-          birthday: birthday,
+    try {
+      // Save date_of_birth to Supabase
+      await _supabase.from('buyers').update({
+        'date_of_birth': dateOfBirth.toIso8601String(),
+      }).eq('buyer_id', widget.buyerId);
+
+      // Navigate to the interests screen
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => SignUpInterestsScreen(
+            buyerId: widget.buyerId,
+            nickname: widget.nickname,
+            gender: widget.gender,
+            birthday: dateOfBirth,
+             email: widget.email,  
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
+      );
+    } catch (e) {
+      // Handle errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save date_of_birth: $e')),
+      );
+    }
   }
 
   @override
