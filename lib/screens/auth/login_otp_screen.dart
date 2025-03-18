@@ -8,9 +8,9 @@ class LoginOtpScreen extends StatefulWidget {
   final String email;
 
   const LoginOtpScreen({
-    Key? key,
+    super.key,
     required this.email,
-  }) : super(key: key);
+  });
 
   @override
   State<LoginOtpScreen> createState() => _LoginOtpScreenState();

@@ -12,7 +12,7 @@ class ReviewsComponent extends StatelessWidget {
   final VoidCallback onTap;
 
   const ReviewsComponent({
-    Key? key,
+    super.key,
     required this.reviewId, // Now required to link to Supabase
     this.commenterName = 'Hasitha Nadun 24',
     this.comment = 'Highly Recommended!',
@@ -26,7 +26,7 @@ class ReviewsComponent extends StatelessWidget {
     ],
     this.profileImage = 'assets/images/feed/commente.jpg',
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

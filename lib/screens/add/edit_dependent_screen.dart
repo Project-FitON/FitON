@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EditDependentScreen extends StatelessWidget {
+  const EditDependentScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

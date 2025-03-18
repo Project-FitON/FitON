@@ -12,7 +12,7 @@ class ReviewsComponent extends StatelessWidget {
   final VoidCallback onTap;
 
   const ReviewsComponent({
-    Key? key,
+    super.key,
     required this.reviewId,
     required this.commenterName,
     required this.comment,
@@ -27,7 +27,7 @@ class ReviewsComponent extends StatelessWidget {
     ],
     this.profileImage = 'assets/images/feed/commente.jpg',
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

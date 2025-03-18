@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class RightBottomButtons extends StatelessWidget {
+  const RightBottomButtons({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,7 +15,7 @@ class RightBottomButtons extends StatelessWidget {
               // Handle the tap event for Green Tick Button
               print('Green Tick Button Pressed');
             },
-            child: Container(
+            child: SizedBox(
               width: 30,
               height: 30,
               child: Image.asset('assets/images/feed/size-cha.png', fit: BoxFit.contain),
@@ -27,7 +29,7 @@ class RightBottomButtons extends StatelessWidget {
               // Handle the tap event for Three Dots Button
               print('Three Dots Button Pressed');
             },
-            child: Container(
+            child: SizedBox(
               width: 30,
               height: 30,
               child: Image.asset('assets/images/feed/more.png', fit: BoxFit.contain),

@@ -3,7 +3,7 @@ import '../feed/nav_screen.dart';
 import 'notifications_screen.dart';
 
 class AccountScreen extends StatefulWidget {
-  const AccountScreen({Key? key}) : super(key: key);
+  const AccountScreen({super.key});
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
@@ -315,6 +315,8 @@ class _AccountScreenState extends State<AccountScreen>
 
 // Collection Screen Widget (existing content)
 class CollectionScreen extends StatelessWidget {
+  const CollectionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -379,6 +381,8 @@ class CollectionScreen extends StatelessWidget {
 
 // Orders Screen Widget (similar layout but for orders)
 class OrdersScreen extends StatelessWidget {
+  const OrdersScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -437,7 +441,7 @@ class OrdersScreen extends StatelessWidget {
 class ClothingItemCard extends StatelessWidget {
   final String imageUrl;
 
-  const ClothingItemCard({Key? key, required this.imageUrl}) : super(key: key);
+  const ClothingItemCard({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -487,8 +491,7 @@ class OrderItemCard extends StatelessWidget {
   final String imageUrl;
   final String status;
 
-  const OrderItemCard({Key? key, required this.imageUrl, required this.status})
-    : super(key: key);
+  const OrderItemCard({super.key, required this.imageUrl, required this.status});
 
   Color _getStatusColor() {
     switch (status.toLowerCase()) {

@@ -6,10 +6,10 @@ class FavouriteComponent extends StatefulWidget {
   final int initialFavoriteCount;
 
   const FavouriteComponent({
-    Key? key,
+    super.key,
     required this.reviewId,
     this.initialFavoriteCount = 0,
-  }) : super(key: key);
+  });
 
   @override
   _FavouriteComponentState createState() => _FavouriteComponentState();
@@ -101,7 +101,7 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     // Format the favorite count for display
     String formattedCount = favoriteCount < 1000
         ? favoriteCount.toString()
-        : (favoriteCount / 1000).toStringAsFixed(1) + 'K';
+        : '${(favoriteCount / 1000).toStringAsFixed(1)}K';
 
     return ElevatedButton(
       onPressed: _toggleFavorite,
@@ -110,13 +110,13 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
         padding: EdgeInsets.zero,
         shadowColor: Colors.transparent,
       ),
-      child: Container(
+      child: SizedBox(
         width: componentWidth,
         height: componentWidth * 1.8,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: componentWidth,
               height: componentWidth,
               child: ColorFiltered(

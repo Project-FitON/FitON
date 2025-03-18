@@ -6,7 +6,7 @@ import 'login_otp_screen.dart';
 import 'supabase_service.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  OnboardingScreen({Key? key}) : super(key: key);
+  OnboardingScreen({super.key});
   final TextEditingController _emailController = TextEditingController();
 
   bool isValidEmail(String email) {
