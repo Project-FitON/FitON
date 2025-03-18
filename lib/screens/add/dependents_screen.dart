@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../feed/nav_screen.dart';
 import 'add_dependents_screen.dart';
 import 'edit_dependent_screen.dart';
 
@@ -84,7 +83,7 @@ class _DependentsScreenState extends State<DependentsScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
           itemCount: dependents.length,
           itemBuilder: (context, index) {
@@ -161,13 +160,12 @@ class _DependentsScreenState extends State<DependentsScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddDependentScreen(),
+              builder: (context) => AddDependentsScreen(),
             ),
           ).then((_) => setState(() {})); // Enables returning back
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-        bottomNavigationBar: NavScreen(),
     );
   }
 }

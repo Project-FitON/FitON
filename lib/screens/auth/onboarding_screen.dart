@@ -1,37 +1,25 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'signup_name_screen.dart';
 import 'login_otp_screen.dart';
 import 'supabase_service.dart';
 
 class OnboardingScreen extends StatelessWidget {
   OnboardingScreen({Key? key}) : super(key: key);
-  final TextEditingController _emailController = TextEditingController();
-
-  bool isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(email);
-  }
+  final TextEditingController _phoneController = TextEditingController();
 
   Future<void> _handleSubmission(BuildContext context) async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty || !isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a valid email address')),
-      );
-      return;
-    }
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) return;
 
     final service = SupabaseService();
-    final userExists = await service.checkUserExists(email);
+    final userExists = await service.checkUserExists(phone);
 
     if (userExists) {
-      // Old user: Redirect to OTP screen
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => LoginOtpScreen(email: email),
+          pageBuilder: (context, animation, secondaryAnimation) => LoginOtpScreen(phoneNumber: phone),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
@@ -45,15 +33,11 @@ class OnboardingScreen extends StatelessWidget {
         ),
       );
     } else {
-      // New user: Create buyer and redirect to name screen
-      final newBuyer = await service.createBuyer(email);
+      final newBuyer = await service.createBuyer(phone);
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => SignUpNameScreen(
-            buyerId: newBuyer['buyer_id'],
-            email: email,
-            ),
+          pageBuilder: (context, animation, secondaryAnimation) => SignUpNameScreen(buyerId: newBuyer['buyer_id']),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
@@ -144,11 +128,11 @@ class OnboardingScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
                             style: const TextStyle(color: Colors.white),
                             decoration: const InputDecoration(
-                              labelText: 'Email Address',
+                              labelText: 'Phone Number',
                               labelStyle: TextStyle(
                                 color: Color(0xFF959595),
                                 fontSize: 16,

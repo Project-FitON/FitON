@@ -12,8 +12,6 @@ import 'feed_components/product_component.dart';
 import 'feed_components/navigation_component.dart';
 import 'feed_components/main_buttons_component.dart';
 import 'tryon_screen.dart';
-import 'tryon_components/right_bottom_buttons.dart';
-import 'tryon_components/try_on_right_bottom_buttons.dart';
 
 class FeedScreen extends StatefulWidget {
   @override
@@ -361,7 +359,7 @@ class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateM
                   Positioned(
                     right: 16,
                     bottom: 90,
-                    child: TryOnRightBottomButtons(),
+                    child: RightBottomButtons(),
                   ),
                   // Slide Animation Container
                   SlideTransition(
