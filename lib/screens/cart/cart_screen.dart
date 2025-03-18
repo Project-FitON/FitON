@@ -189,6 +189,52 @@ class _CartScreenState extends State<CartScreen> {
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(30),
                         bottomRight: Radius.circular(30),
+=======
+      body: Column(
+        children: [
+          // Purple Header
+          Container(
+            height: 120,
+            decoration: BoxDecoration(
+              color: Color (0xFF1B0331),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            padding: EdgeInsets.only(left: 16, top: 24, right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'MY CART',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Total: \$${total.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Cart Items List
+          Expanded(
+            child: cartItems.isEmpty
+                ? Center(
+                    child: Text(
+                      'Your cart is empty',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
                       ),
                     ),
                     padding: EdgeInsets.only(left: 16, top: 24, right: 16),
@@ -355,6 +401,38 @@ class _CartScreenState extends State<CartScreen> {
                         'Checkout',
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
+=======
+          ),
+
+          // Summary Section
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Sub total', style: TextStyle(color: Colors.black)),
+                    Text('\$${total.toStringAsFixed(2)}',
+                        style: TextStyle(color: Colors.black45)),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Shipping', style: TextStyle(color: Colors.black)),
+                    Text('\$5.00', style: TextStyle(color: Colors.black45)),
+                  ],
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: checkout,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF1B0331),
+                    minimumSize: Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ],
