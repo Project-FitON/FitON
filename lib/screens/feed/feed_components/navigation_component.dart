@@ -11,15 +11,44 @@ class NavigationComponent extends StatefulWidget {
 class _NavigationComponentState extends State<NavigationComponent> {
   String? selectedButton;
   bool _isTapped = false;
+  bool _isNavigating = false;
 
   void _handleTap(String buttonName, BuildContext context) {
+    // Prevent multiple rapid taps
+    if (_isNavigating) return;
+
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+    String targetRoute = '';
+
+    // Determine target route
+    switch (buttonName) {
+      case 'Feed':
+        targetRoute = NavigationService.feedRoute;
+        break;
+      case 'Cart':
+        targetRoute = NavigationService.cartRoute;
+        break;
+      case 'Fashee':
+        targetRoute = NavigationService.fasheeRoute;
+        break;
+      case 'Profile':
+        targetRoute = NavigationService.profileRoute;
+        break;
+      default:
+        return;
+    }
+
+    // Don't navigate if we're already on the route
+    if (currentRoute == targetRoute) return;
+
     setState(() {
       selectedButton = buttonName;
       _isTapped = true;
+      _isNavigating = true;
     });
 
-    // After 300ms, revert back to normal
-    Future.delayed(Duration(milliseconds: 300), () {
+    // Visual feedback
+    Future.delayed(Duration(milliseconds: 200), () {
       if (mounted) {
         setState(() {
           _isTapped = false;
@@ -27,44 +56,36 @@ class _NavigationComponentState extends State<NavigationComponent> {
       }
     });
 
-    // Use safer navigation approach
+    // Navigate with error handling
     try {
-      String route = '';
-      switch (buttonName) {
-        case 'Feed':
-          route = NavigationService.feedRoute;
-          break;
-        case 'Cart':
-          route = NavigationService.cartRoute;
-          break;
-        case 'Fashee':
-          route = NavigationService.fasheeRoute;
-          break;
-        case 'Profile':
-          route = NavigationService.profileRoute;
-          break;
-        default:
-          return;
-      }
-
-      // Use Navigator.pushReplacementNamed instead of NavigationService
-      Navigator.pushReplacementNamed(context, route).catchError((error) {
-        print('Navigation error: $error');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error navigating to $buttonName: $error'),
-            backgroundColor: Colors.red,
-          ),
-        );
+      Navigator.pushNamed(context, targetRoute).then((_) {
+        if (mounted) {
+          setState(() {
+            _isNavigating = false;
+          });
+        }
+      }).catchError((error) {
+        if (mounted) {
+          setState(() {
+            _isNavigating = false;
+          });
+          print('Navigation error: $error');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error navigating to $buttonName'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       });
     } catch (e) {
-      print('Navigation error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error navigating to $buttonName: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+        });
+        print('Navigation error: $e');
+      }
     }
   }
 
@@ -131,7 +152,7 @@ class _NavigationComponentState extends State<NavigationComponent> {
     final color = isSelected ? Colors.purple[900] : Colors.white;
     
     return InkWell(
-      onTap: () => _handleTap(buttonName, context),
+      onTap: _isNavigating ? null : () => _handleTap(buttonName, context),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -165,7 +186,7 @@ class _NavigationComponentState extends State<NavigationComponent> {
 
   Widget _buildAddButton(BuildContext context) {
     return InkWell(
-      onTap: () => _handleTap('Add', context),
+      onTap: _isNavigating ? null : () => _handleTap('Add', context),
       child: AnimatedOpacity(
         opacity: _isTapped && selectedButton == 'Add' ? 0.3 : 1.0,
         duration: Duration(milliseconds: 200),
@@ -176,5 +197,11 @@ class _NavigationComponentState extends State<NavigationComponent> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _isNavigating = false;
+    super.dispose();
   }
 }
