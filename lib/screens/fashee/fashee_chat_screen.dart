@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fiton/screens/fashee/fashee_screen.dart';
 
 void main() {
   runApp(const ChatApp());
@@ -31,7 +30,6 @@ class _ChatScreenState extends State<ChatScreen> {
       "isUser": false,
       "text":
       "I think the gold color frock you have is the best suit for a wedding, Nimasha. Let me show you.",
-      "image": "assets/images/feed/girl.jpeg",
     },
     {
       "isUser": false,
@@ -165,10 +163,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           : MainAxisAlignment.start,
                       children: [
                         if (!message["isUser"])
-                          const CircleAvatar(
-                            backgroundImage: AssetImage(
-                              "assets/images/feed/mm.png", // Bot Image
-                            ),
+                          CircleAvatar(
+                            backgroundColor: Colors.purple.shade100,
+                            child: Icon(Icons.assistant, color: Colors.purple.shade800),
                           ),
                         if (!message["isUser"]) const SizedBox(width: 8),
                         Flexible(
@@ -200,11 +197,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                     padding: const EdgeInsets.only(
                                       top: 5,
                                     ),
-                                    child: Image.asset(
-                                      message["image"],
+                                    child: Container(
                                       width: 150,
                                       height: 150,
-                                      fit: BoxFit.cover,
+                                      color: Colors.grey.shade200,
+                                      child: Center(
+                                        child: Icon(Icons.image, size: 50, color: Colors.grey),
+                                      ),
                                     ),
                                   ),
                               ],
@@ -213,10 +212,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         if (message["isUser"]) const SizedBox(width: 8),
                         if (message["isUser"])
-                          const CircleAvatar(
-                            backgroundImage: AssetImage(
-                              "assets/images/feed/girl.jpeg", // User Image
-                            ),
+                          CircleAvatar(
+                            backgroundColor: Colors.purple.shade800,
+                            child: Icon(Icons.person, color: Colors.white),
                           ),
                       ],
                     ),
