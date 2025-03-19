@@ -6,6 +6,7 @@ import 'screens/cart/cart_screen.dart';
 import 'screens/fashee/fashee_screen.dart';
 import 'screens/account/account_screen.dart';
 import 'services/navigation_service.dart';
+import 'screens/feed/nav_screen.dart';
 
 void main() async {
   // Add error handling for Flutter initialization
