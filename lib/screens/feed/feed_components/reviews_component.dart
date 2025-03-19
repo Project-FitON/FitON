@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'favourite_component.dart';
+
 class ReviewsComponent extends StatelessWidget {
   final String reviewId;
   final String commenterName;
   final String comment;
   final int likes;
-  final double rating; // Changed to double to handle rating precision
+  final double rating;
   final List<String> starImages;
   final String profileImage;
   final VoidCallback onTap;
@@ -17,7 +19,7 @@ class ReviewsComponent extends StatelessWidget {
     required this.commenterName,
     required this.comment,
     required this.likes,
-    required this.rating,  // Ensure rating is passed as double
+    required this.rating,
     this.starImages = const [
       'assets/images/feed/star.png',
       'assets/images/feed/star.png',
@@ -65,7 +67,7 @@ class ReviewsComponent extends StatelessWidget {
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
-              height: 60,
+              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),

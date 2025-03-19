@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fiton/models/review_model.dart';
-import 'feed_components/more_details_component.dart'; // Import the RightBottomButtons component
-import 'feed_components/seller_component.dart'; // Import the SellerComponent
-import 'feed_components/top_buttons_component.dart'; // Import the Top Buttons component
-import 'feed_components/favourite_component.dart'; // Import the FavoriteComponent
+import 'package:fiton/models/product_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../models/shop_model.dart';
+import 'feed_components/more_details_component.dart';
+import 'feed_components/seller_component.dart';
+import 'feed_components/top_buttons_component.dart';
+import 'feed_components/favourite_component.dart';
 import 'feed_components/reviews_component.dart';
-import 'feed_components/product_component.dart'; // Import the ProductComponent
+import 'feed_components/product_component.dart';
+import 'feed_components/main_buttons_component.dart';
+import 'tryon_screen.dart';
 import 'feed_components/navigation_component.dart';
-import 'feed_components/main_buttons_component.dart'; // Import Main Buttons component
-import 'tryon_screen.dart'; // Import the TryOnScreen
 
 class FeedScreen extends StatefulWidget {
   @override
@@ -17,42 +20,138 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateMixin {
   List<Review> reviews = [];
+  List<ProductModel> products = [];
+  Map<String, ShopModel> shops = {};  // Cache for shop data
   bool isLoading = true;
+  String? error;
   int currentProductIndex = 0;
-  late AnimationController _controller; // Animation controller for smooth product transitions
-  late Animation<Offset> _slideAnimation; // Slide animation for smooth transitions
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    fetchReviews();
-
-    // Initialize the animation controller
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 300),
-    );
-
-    // Set up the slide animation
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 1), // Start from the bottom (for up swipe)
-      end: Offset.zero, // End at the current position
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _initializeAnimations();
+    _fetchData();
   }
 
-  Future<void> fetchReviews() async {
-    final fetchedReviews = await Review.fetchReviews();
-    setState(() {
-      reviews = fetchedReviews;
-      isLoading = false;
-    });
+  void _initializeAnimations() {
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    ));
+  }
+
+  Future<void> _fetchShopData(String shopId) async {
+    if (!shops.containsKey(shopId)) {
+      try {
+        print('Fetching shop data for shopId: $shopId');
+        
+        // Simple query to get shop data
+        final response = await Supabase.instance.client
+            .from('shops')
+            .select()
+            .eq('shop_id', shopId)
+            .single();
+        
+        print('Shop response raw: $response');
+        
+        if (response != null) {
+          setState(() {
+            shops[shopId] = ShopModel(
+              shopId: response['shop_id'] ?? '',
+              shopName: response['shop_name'] ?? 'Shop',
+              email: response['email'] ?? '',
+              passwordHash: response['password_hash'] ?? '',
+              profilePhoto: response['profile_photo'],
+              cashOnDelivery: response['cash_on_delivery'] ?? false,
+              createdAt: DateTime.parse(response['created_at'] ?? DateTime.now().toIso8601String()),
+              updatedAt: DateTime.parse(response['updated_at'] ?? DateTime.now().toIso8601String()),
+            );
+          });
+          
+          print('Set shop in state with name: ${shops[shopId]?.shopName}');
+        } else {
+          print('Shop response was null');
+          // Set a default shop model to avoid loading state
+          setState(() {
+            shops[shopId] = ShopModel(
+              shopId: shopId,
+              shopName: 'Shop',
+              email: '',
+              passwordHash: '',
+              cashOnDelivery: false,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+          });
+        }
+      } catch (e, stackTrace) {
+        print('Error fetching shop data: $e');
+        print('Stack trace: $stackTrace');
+        // Set a default shop model on error
+        setState(() {
+          shops[shopId] = ShopModel(
+            shopId: shopId,
+            shopName: 'Shop',
+            email: '',
+            passwordHash: '',
+            cashOnDelivery: false,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      setState(() {
+        isLoading = true;
+        error = null;
+      });
+
+      final fetchedProducts = await ProductModel.fetchProducts();
+      final fetchedReviews = await Review.fetchReviews();
+      
+      if (mounted) {
+        setState(() {
+          products = fetchedProducts;
+          reviews = fetchedReviews;
+          isLoading = false;
+        });
+
+        // Fetch shop data for the first product
+        if (products.isNotEmpty) {
+          await _fetchShopData(products[currentProductIndex].shopId);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = 'Failed to load data. Please try again.';
+          isLoading = false;
+        });
+      }
+    }
   }
 
   void loadNextProduct() {
-    if (currentProductIndex < reviews.length - 1) {
+    if (currentProductIndex < products.length - 1) {
       setState(() {
         currentProductIndex++;
       });
+      _controller.forward(from: 0);
+      // Fetch shop data for the next product
+      _fetchShopData(products[currentProductIndex].shopId);
     }
   }
 
@@ -61,107 +160,130 @@ class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateM
       setState(() {
         currentProductIndex--;
       });
+      _controller.reverse(from: 1);
+      // Fetch shop data for the previous product
+      _fetchShopData(products[currentProductIndex].shopId);
     }
+  }
+
+  Future<void> _refreshFeed() async {
+    await _fetchData();
   }
 
   @override
   void dispose() {
-    _controller.dispose(); // Dispose the animation controller
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity! < 0) {
-          // Left swipe detected, navigate to TryOnScreen with animation
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => TryOnScreen(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: Offset(1, 0), // Slide from right to left
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                );
-              },
-            ),
-          );
-        } else if (details.primaryVelocity! > 0) {
-          Navigator.pop(context);
-        }
-      },
-      onVerticalDragEnd: (details) {
-        if (details.primaryVelocity! < 0) {
-          // Up swipe detected, load the next product with smooth animation
-          loadNextProduct();
-          _controller.forward(from: 0); // Start the slide animation from bottom to top
-        } else if (details.primaryVelocity! > 0) {
-          // Down swipe detected, load the previous product with smooth animation
-          loadPreviousProduct();
-          _controller.reverse(from: 1); // Start the slide animation from top to bottom
-        }
-      },
-      child: Scaffold(
-        body: Container(
-          width: double.infinity,
-          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+    // Get the current shop
+    final currentShop = products.isNotEmpty && shops.containsKey(products[currentProductIndex].shopId)
+        ? shops[products[currentProductIndex].shopId]
+        : null;
+
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: _refreshFeed,
+        child: GestureDetector(
+          onVerticalDragEnd: (details) {
+            if (details.primaryVelocity! < 0) {
+              loadNextProduct();
+            } else if (details.primaryVelocity! > 0) {
+              loadPreviousProduct();
+            }
+          },
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity! < 0) {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => TryOnScreen(
+                    shopId: products[currentProductIndex].shopId,
+                    productId: products[currentProductIndex].productId,
+                    price: products[currentProductIndex].price,
+                  ),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            }
+          },
           child: Stack(
             children: [
-              // Background Image
+              // Background Image with error handling
               Positioned.fill(
-                child: Image.asset('assets/images/feed/recommed.jpg', fit: BoxFit.cover),
-              ),
-              // Top Section (Seller, Favorite Components)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: EdgeInsets.only(top: 40, left: 16, right: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Seller Component
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: SellerComponent(onTap: () {}),
-                      ),
-                      // Favorite Component (Positioned after the Seller)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: FavouriteComponent(
-                          reviewId: reviews.isNotEmpty ? reviews[currentProductIndex].reviewId : '00000000-0000-0000-0000-000000000000',
-                          initialFavoriteCount: reviews.isNotEmpty ? reviews[currentProductIndex].likes : 0,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: Image.asset(
+                  'assets/images/feed/recommed.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Error loading background image: $error');
+                    return Container(
+                      color: Colors.grey[900], // Dark fallback color
+                    );
+                  },
                 ),
               ),
-              // Top Buttons Component - Positioned at the top-right corner
-              Positioned(
-                top: 50,
-                right: 16,
-                child: TopButtonsComponent(),
-              ),
-              // Main Buttons Component - Positioned with bottom: 250
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 250,
-                child: MainButtonsComponent(),
-              ),
-              // Bottom Section (Reviews, Product, Navigation Buttons)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: SingleChildScrollView(
+              if (isLoading)
+                Center(child: CircularProgressIndicator())
+              else if (error != null)
+                Center(child: Text(error!, style: TextStyle(color: Colors.white)))
+              else if (products.isEmpty)
+                Center(child: Text('No products available', style: TextStyle(color: Colors.white)))
+              else ...[
+                // Top Section (Seller, Favorite Components)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.only(top: 40, left: 16, right: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Seller Component
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: SellerComponent(
+                            name: currentShop?.shopName ?? 'Loading...',
+                            shopId: products[currentProductIndex].shopId,
+                            profileImage: currentShop?.profilePhoto ?? 'assets/images/feed/profile.jpg',
+                            onTap: () {},
+                          ),
+                        ),
+                        // Favorite Component
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: FavouriteComponent(
+                            key: ValueKey(products[currentProductIndex].productId),
+                            reviewId: reviews.isNotEmpty ? reviews[currentProductIndex].reviewId : '00000000-0000-0000-0000-000000000000',
+                            productId: products[currentProductIndex].productId,
+                            initialFavoriteCount: products[currentProductIndex].likes,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Top Buttons Component
+                Positioned(
+                  top: 50,
+                  right: 16,
+                  child: TopButtonsComponent(),
+                ),
+                // Bottom Section (Reviews, Product, Navigation)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -170,58 +292,90 @@ class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateM
                         end: Alignment.topCenter,
                         colors: [
                           Colors.black.withOpacity(1),
-                          Colors.black.withOpacity(0.5),
+                          Colors.black.withOpacity(0.9),
+                          Colors.black.withOpacity(0.7),
                           Colors.black.withOpacity(0.0),
                         ],
+                        stops: [0.0, 0.3, 0.6, 1.0],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Stack(
                       children: [
-                        // Reviews Section (Placed below the Main Buttons)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 32),
-                          child: isLoading
-                              ? Center(child: CircularProgressIndicator())
-                              : reviews.isEmpty
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 160),
+                            // Product Component at bottom
+                            if (!isLoading && error == null && products.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16, bottom: 76),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ProductComponent(
+                                        product: products[currentProductIndex],
+                                        onTap: () {},
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        // Reviews Component positioned above product
+                        Positioned(
+                          bottom: 140,
+                          left: 0,
+                          right: 0,
+                          child: reviews.isEmpty
                               ? Center(child: Text("No Reviews Yet"))
                               : ReviewsComponent(
-                            reviewId: reviews[currentProductIndex].reviewId,
-                            commenterName: 'User ${reviews[currentProductIndex].buyerId}',
-                            comment: reviews[currentProductIndex].comment,
-                            likes: reviews[currentProductIndex].likes,
-                            rating: reviews[currentProductIndex].rating.toDouble(),
-                            onTap: () {},
+                                  reviewId: reviews[currentProductIndex].reviewId,
+                                  commenterName: 'User ${reviews[currentProductIndex].buyerId}',
+                                  comment: reviews[currentProductIndex].comment,
+                                  likes: products[currentProductIndex].likes,
+                                  rating: reviews[currentProductIndex].rating.toDouble(),
+                                  onTap: () {},
+                                ),
+                        ),
+                        // Main Buttons Component in middle of screen
+                        Positioned(
+                          bottom: 250,
+                          left: 0,
+                          right: 0,
+                          child: MainButtonsComponent(
+                            shopId: products[currentProductIndex].shopId,
+                            productId: products[currentProductIndex].productId,
+                            price: products[currentProductIndex].price,
+                            onFollowSuccess: () {
+                              _fetchShopData(products[currentProductIndex].shopId);
+                            },
                           ),
-                        ),
-                        // Product Section (No background color applied)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: ProductComponent(onTap: () {}),
-                        ),
-                        // Bottom navigation buttons
-                        Padding(
-                          padding: const EdgeInsets.only(top: 0),
-                          child: NavigationComponent(),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-              // Right Bottom Buttons, always at the bottom-right corner
-              Positioned(
-                right: 16,
-                bottom: 120,
-                child: RightBottomButtons(),
-              ),
-              // Smooth Slide for Product Transition (only for vertical swipes)
-              Positioned.fill(
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Container(), // The product image or details to slide smoothly
+                // Right Bottom Buttons - aligned with product component
+                Positioned(
+                  right: 16,
+                  bottom: 90,
+                  child: RightBottomButtons(),
                 ),
-              ),
+                // Slide Animation Container
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: Container(),
+                ),
+                // Navigation Component
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: NavigationComponent(),
+                ),
+              ],
             ],
           ),
         ),

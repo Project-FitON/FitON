@@ -14,6 +14,7 @@ class ShopModel {
   final String? bankName;
   final String? upiId;
   final bool cashOnDelivery;
+  final int followersCount;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -31,6 +32,7 @@ class ShopModel {
     this.bankName,
     this.upiId,
     required this.cashOnDelivery,
+    this.followersCount = 0,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -50,6 +52,7 @@ class ShopModel {
       bankName: json['bank_name'],
       upiId: json['upi_id'],
       cashOnDelivery: json['cash_on_delivery'],
+      followersCount: json['followers_count'] ?? 0,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -70,6 +73,7 @@ class ShopModel {
       'bank_name': bankName,
       'upi_id': upiId,
       'cash_on_delivery': cashOnDelivery,
+      'followers_count': followersCount,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

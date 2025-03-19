@@ -1,15 +1,14 @@
-import 'dart:async'; 
-import 'dart:ui';
+import 'dart:ui'; 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fiton/screens/feed/feed_screen.dart';
+import 'onboarding_screen.dart'; 
 
 class LoginOtpScreen extends StatefulWidget {
-  final String email;
+  final String phoneNumber;
 
   const LoginOtpScreen({
     Key? key,
-    required this.email,
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
@@ -18,28 +17,26 @@ class LoginOtpScreen extends StatefulWidget {
 
 class _LoginOtpScreenState extends State<LoginOtpScreen> {
   final List<TextEditingController> _controllers = List.generate(
-    6,
+    4,
     (index) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(
-    6,
+    4,
     (index) => FocusNode(),
   );
 
-  int _timerSeconds = 59; // Timer starts at 59 seconds
+  final int _timerSeconds = 59;
   bool _isLoading = false;
-  late Timer _timer; // Timer for countdown
 
   @override
   void initState() {
     super.initState();
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 4; i++) {
       _focusNodes[i].addListener(() {
         setState(() {});
       });
     }
-    _startTimer(); // Start the timer
-    _sendOtp(); 
+    _sendOtp(); // Send OTP automatically when the screen loads
   }
 
   @override
@@ -50,29 +47,11 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
     for (var node in _focusNodes) {
       node.dispose();
     }
-    _timer.cancel(); 
     super.dispose();
   }
 
-  void _startTimer() {
-    const oneSec = Duration(seconds: 1); 
-    _timer = Timer.periodic(
-      oneSec,
-      (Timer timer) {
-        if (_timerSeconds == 0) {
-          // Stop the timer when it reaches 0
-          timer.cancel();
-        } else {
-          setState(() {
-            _timerSeconds--; // Decrease the timer by 1 second
-          });
-        }
-      },
-    );
-  }
-
   void _onOtpDigitChanged(int index, String value) {
-    if (value.length == 1 && index < 5) {
+    if (value.length == 1 && index < 3) {
       _focusNodes[index + 1].requestFocus();
     }
   }
@@ -83,8 +62,9 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
     });
 
     try {
+      // Send OTP using Supabase
       await Supabase.instance.client.auth.signInWithOtp(
-        email: widget.email,
+        phone: widget.phoneNumber,
       );
 
       setState(() {
@@ -92,7 +72,7 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('OTP sent to ${widget.email}')),
+        SnackBar(content: Text('OTP sent to ${widget.phoneNumber}')),
       );
     } catch (e) {
       setState(() {
@@ -110,32 +90,29 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
     });
 
     try {
+      // Combine OTP digits
       final otp = _controllers.map((controller) => controller.text).join();
-      print("Entered OTP: $otp");
 
-      final response = await Supabase.instance.client.auth.verifyOTP(
-        email: widget.email,
+      // Verify OTP using Supabase
+      await Supabase.instance.client.auth.verifyOTP(
+        phone: widget.phoneNumber,
         token: otp,
-        type: OtpType.email,
+        type: OtpType.sms,
       );
-      print("Supabase Response: $response");
 
       setState(() {
         _isLoading = false;
       });
 
-      if (mounted) {
-        print("Navigating to FeedScreen...");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => FeedScreen()),
-        );
-      }
+      // Navigate to the next screen after successful verification
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => OnboardingScreen()),
+      );
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      print("OTP Verification Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to verify OTP: $e')),
       );
@@ -210,7 +187,7 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Welcome back\n${widget.email} !!!',
+                                    'Welcome back\n${widget.phoneNumber} !!!',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 40,
@@ -239,7 +216,7 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(
-                          6,
+                          4,
                           (index) => Container(
                             width: 50,
                             height: 50,
@@ -301,7 +278,7 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
                               ),
                             ),
                             Text(
-                              '0:${_timerSeconds.toString().padLeft(2, '0')}', 
+                              '0:$_timerSeconds',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

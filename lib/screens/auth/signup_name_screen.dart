@@ -1,17 +1,10 @@
 import 'dart:ui';
 import 'signup_birthday_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpNameScreen extends StatefulWidget {
   final String buyerId;
-  final String email; 
-
-  const SignUpNameScreen({
-    super.key,
-    required this.buyerId,
-    required this.email, 
-  });
+  const SignUpNameScreen({super.key, required this.buyerId});
 
   @override
   _SignUpNameScreenState createState() => _SignUpNameScreenState();
@@ -19,52 +12,41 @@ class SignUpNameScreen extends StatefulWidget {
 
 class _SignUpNameScreenState extends State<SignUpNameScreen> {
   final TextEditingController _nameController = TextEditingController();
-  String? _selectedGender = 'Male';
+  String? _selectedGender;
   late String buyerId;
 
   @override
   void initState() {
     super.initState();
     buyerId = widget.buyerId;
+    _selectedGender = 'female'; // Default gender selection
   }
 
-  Future<void> _handleSubmission() async {
+  void _handleSubmission() {
     if (_nameController.text.isEmpty || _selectedGender == null) return;
 
-    try {
-      // Save nickname and gender to Supabase
-      await Supabase.instance.client.from('buyers').update({
-        'nickname': _nameController.text,
-        'gender': _selectedGender!,
-      }).eq('buyer_id', buyerId);
-
-      // Navigate to SignUpBirthdayScreen
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => SignUpBirthdayScreen(
-            buyerId: buyerId,
-            nickname: _nameController.text,
-            gender: _selectedGender!,
-            email: widget.email, 
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.ease;
-            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return SlideTransition(
-              position: animation.drive(tween),
-              child: child,
-            );
-          },
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SignUpBirthdayScreen(
+          buyerId: buyerId,
+          nickname: _nameController.text,
+          gender: _selectedGender!,
         ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save data: $e')),
-      );
-    }
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildGenderButton(String text, String value) {
@@ -136,6 +118,8 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                     ),
                   ),
                 ),
+
+                // Gradient Overlay
                 Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -149,6 +133,8 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                     ),
                   ),
                 ),
+
+                // Content
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                   child: Column(
@@ -213,11 +199,9 @@ class _SignUpNameScreenState extends State<SignUpNameScreen> {
                       const SizedBox(height: 27),
                       Row(
                         children: [
-                          _buildGenderButton('🚹 Male', 'Male'),
+                          _buildGenderButton('🚹 Male', 'male'),
                           const SizedBox(width: 27),
-                          _buildGenderButton('🚺 Female', 'Female'),
-                          const SizedBox(width: 27),
-                          _buildGenderButton('👤 Other', 'Other'),
+                          _buildGenderButton('🚺 Female', 'female'),
                         ],
                       ),
                       const SizedBox(height: 24),

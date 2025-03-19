@@ -1,185 +1,292 @@
-import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
-import 'package:fiton/screens/feed/nav_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
+import '../feed/feed_components/navigation_component.dart';
 
-import '../feed/nav_screen.dart';
+class FasheeScreen extends StatefulWidget {
+  const FasheeScreen({Key? key}) : super(key: key);
 
-class FasheeHomePage extends StatelessWidget {
-  FasheeHomePage({super.key});
+  @override
+  State<FasheeScreen> createState() => _FasheeScreenState();
+}
 
-  final TextEditingController _textController = TextEditingController(); // Controller added
+class _FasheeScreenState extends State<FasheeScreen> {
+  final TextEditingController _textController = TextEditingController();
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set loading to false after widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color.fromARGB(255, 180, 201, 237),
-                const Color.fromARGB(255, 255, 255, 255),
-              ],
-            ),
-          ),
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  // ✅ **Fixed: Clickable Menu Button**
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.menu, color: Colors.black, size: 40),
-                      onPressed: () {
-                        // **Action when clicking the button**
-                        print("Menu button clicked!"); // Replace this with any action
-                      },
-                    ),
-                  ),
-
-                  Positioned(
-                    top: 0,
-                    left: 180,
-                    right: 0,
-                    child: Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 26, 5, 63),
-                        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(100)),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 50, right: 20),
-                        child: Align(
-                          alignment: Alignment.topRight,
-                          child: Text(
-                            'Fashee here,\nNimasha !!!',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 70),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 300,
-                          child: Image.asset(
-                            "assets/images/feed/mmmm.png",
-                            fit: BoxFit.cover,
-                            colorBlendMode: BlendMode.difference,
-                          ),
-                        ),
-                        const Text(
-                          "Let's explore the fashion...",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                        const SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  blurRadius: 10,
-                                  spreadRadius: 3,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _textController, // Controller linked here
-                                    decoration: const InputDecoration(
-                                      hintText: 'Ask Me Anything...',
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
-                                    color: Color.fromARGB(255, 26, 5, 63),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(Icons.send, color: Colors.white),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ChatScreen(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          alignment: WrapAlignment.center,
-                          children: [
-                            CustomButton(text: 'I have a wedding', controller: _textController),
-                            CustomButton(text: 'Match my clothes', controller: _textController),
-                            CustomButton(text: 'Planned to color my hair', controller: _textController),
-                          ],
-                        ),
+    try {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          children: [
+            // Main content with bottom padding for navigation
+            Container(
+              height: MediaQuery.of(context).size.height,
+              padding: EdgeInsets.only(bottom: 60),
+              child: SingleChildScrollView(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color.fromARGB(255, 180, 201, 237),
+                        const Color.fromARGB(255, 255, 255, 255),
                       ],
                     ),
                   ),
-                ],
+                  child: Column(
+                    children: [
+                      Stack(
+                        children: [
+                          // Transparent AppBar for height
+                          AppBar(
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            toolbarHeight: 80,
+                          ),
+                          
+                          // Header Content
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 60),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        // Menu action
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          Icons.menu,
+                                          color: Colors.grey[800],
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  "Hey, Nimasha",
+                                  style: TextStyle(
+                                    color: Colors.grey[800],
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "Got any fashion questions?",
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Fashion AI Image
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Container(
+                                width: double.infinity,
+                                height: 200,
+                                color: Colors.purple.shade100,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.auto_awesome,
+                                    size: 80,
+                                    color: Colors.purple.shade800,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              "How can I assist with your fashion needs today?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.grey[800],
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Text Field
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _textController,
+                                      decoration: InputDecoration(
+                                        hintText: "Type your fashion question...",
+                                        hintStyle: TextStyle(color: Colors.grey[400]),
+                                        border: InputBorder.none,
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.send_rounded,
+                                      color: Colors.purple[700],
+                                    ),
+                                    onPressed: () {
+                                      if (_textController.text.isNotEmpty) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatScreen(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              "Quick Prompts",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
+                              alignment: WrapAlignment.center,
+                              children: [
+                                _buildPromptButton(
+                                  "What should I wear to a wedding?",
+                                  Icons.celebration,
+                                ),
+                                _buildPromptButton(
+                                  "Help me style these jeans",
+                                  Icons.shopping_bag,
+                                ),
+                                _buildPromptButton(
+                                  "Business casual outfit ideas",
+                                  Icons.business,
+                                ),
+                                _buildPromptButton(
+                                  "Colors that match with blue",
+                                  Icons.palette,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
-            ],
+            ),
+            // Navigation component at the bottom
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: NavigationComponent(),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      print('Error building FasheeScreen: $e');
+      return Scaffold(
+        body: Center(
+          child: Text('Error loading Fashee: $e'),
+        ),
+      );
+    }
+  }
+
+  Widget _buildPromptButton(String text, IconData icon) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.45,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          _textController.text = text;
+        },
+        icon: Icon(icon, color: Colors.purple[700]),
+        label: Text(
+          text,
+          style: TextStyle(
+            color: Colors.grey[800],
+            fontSize: 12,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
         ),
       ),
-      bottomNavigationBar: NavScreen(),
-    );
-  }
-}
-
-// **Custom Button**
-class CustomButton extends StatelessWidget {
-  final String text;
-  final TextEditingController controller;
-
-  const CustomButton({super.key, required this.text, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueGrey[100],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-      ),
-      onPressed: () {
-        controller.text = text;
-      },
-      child: Text(text, style: const TextStyle(color: Colors.black)),
     );
   }
 }

@@ -4,44 +4,25 @@ class SupabaseService {
   final SupabaseClient _client = Supabase.instance.client;
 
   // Check if user exists
-  Future<bool> checkUserExists(String email) async {
+  Future<bool> checkUserExists(String phone) async {
     final response = await _client
         .from('buyers')
         .select()
-        .eq('email', email) 
+        .eq('phone_number', phone)
         .maybeSingle();
     return response != null;
   }
 
   // Create new buyer
-  Future<Map<String, dynamic>> createBuyer(String email) async {
+  Future<Map<String, dynamic>> createBuyer(String phone) async {
     final response = await _client
         .from('buyers')
-        .insert({'email': email}) 
+        .insert({'phone_number': phone})
         .select()
         .single();
 
     print(response);
     return response;
-  }
-
-  // Send OTP to email
-  Future<void> sendEmailOtp(String email) async {
-    await _client.auth.signInWithOtp(
-      email: email,
-    );
-  }
-
-  // Verify OTP
-  Future<bool> verifyOtp(String email, String otp) async {
-    final response = await _client.auth.verifyOTP(
-      email: email,
-      token: otp,
-      type: OtpType.signup, 
-    );
-
-    // Check if the OTP verification was successful
-    return response.session != null;
   }
 
   // Create dependant
@@ -59,5 +40,9 @@ class SupabaseService {
       'date_of_birth': birthday.toIso8601String(),
       'interests': interests,
     });
+  }
+
+  Future<bool> verifyOtp(String phone, String otp) async {
+    return true;
   }
 }

@@ -1,16 +1,13 @@
-import 'dart:async';
 import 'dart:ui';
+import 'signup_Interests_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fiton/screens/feed/feed_screen.dart';
 
 class SignUpOtpScreen extends StatefulWidget {
   final String buyerId;
   final String nickname;
   final String gender;
   final DateTime birthday;
-  final List<String> interests;
-  final String email;
+  final String phoneNumber;
 
   const SignUpOtpScreen({
     super.key,
@@ -18,8 +15,7 @@ class SignUpOtpScreen extends StatefulWidget {
     required this.nickname,
     required this.gender,
     required this.birthday,
-    required this.interests,
-    required this.email,
+    this.phoneNumber = '+1234567890', // Default value
   });
 
   @override
@@ -28,30 +24,24 @@ class SignUpOtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<SignUpOtpScreen> {
   final List<TextEditingController> _controllers = List.generate(
-    6,
+    4,
     (index) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(
-    6,
+    4,
     (index) => FocusNode(),
   );
 
   final int _timerSeconds = 59;
-  int _remainingSeconds = 59;
-  late Timer _timer;
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    print("Email used for OTP: ${widget.email}"); 
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 4; i++) {
       _focusNodes[i].addListener(() {
         setState(() {});
       });
     }
-    _startTimer(); // Start the timer
-    _sendOtp(); // Send OTP automatically when the screen loads
   }
 
   @override
@@ -62,125 +52,42 @@ class _OtpScreenState extends State<SignUpOtpScreen> {
     for (var node in _focusNodes) {
       node.dispose();
     }
-    _timer.cancel(); 
     super.dispose();
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds > 0) {
-        setState(() {
-          _remainingSeconds--;
-        });
-      } else {
-        _timer.cancel();
-      }
-    });
-  }
-
   void _onOtpDigitChanged(int index, String value) {
-    if (value.length == 1 && index < 5) {
+    if (value.length == 1 && index < 3) {
       _focusNodes[index + 1].requestFocus();
     }
   }
 
-  bool isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(email);
-  }
+  void _verifyOtp() {
+    final otp = _controllers.map((c) => c.text).join();
 
-  Future<void> _sendOtp() async {
-    final email = widget.email.trim(); 
-    if (!isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid email address')),
-      );
-      return;
-    }
+    // Simulating OTP verification - replace this with actual backend call
+    if (otp.length == 4) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => SignUpInterestsScreen(
+            buyerId: widget.buyerId,
+            nickname: widget.nickname,
+            gender: widget.gender,
+            birthday: widget.birthday,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
 
-    setState(() {
-      _isLoading = true;
-    });
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
-    try {
-      await Supabase.instance.client.auth.signInWithOtp(
-        email: email, 
-      );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('OTP sent to $email')),
-      );
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send OTP: $e')),
-      );
-    }
-  }
-
-  Future<void> _verifyOtp() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final otp = _controllers.map((controller) => controller.text).join();
-      print("Entered OTP: $otp"); 
-
-      // Verify OTP using Supabase
-      final response = await Supabase.instance.client.auth.verifyOTP(
-        email: widget.email,
-        token: otp,
-        type: OtpType.email, 
-      );
-      print("Supabase Response: $response"); 
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (mounted) {
-        print("Navigating to FeedScreen..."); 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => FeedScreen()),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      print("OTP Verification Error: $e"); 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to verify OTP: $e')),
-      );
-    }
-  }
-
-  Future<void> _resendOtp() async {
-    try {
-      // Resend OTP using Supabase
-      await Supabase.instance.client.auth.signInWithOtp(
-        email: widget.email,
-      );
-
-      setState(() {
-        _remainingSeconds = _timerSeconds; 
-      });
-      _startTimer(); 
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('OTP resent to ${widget.email}')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to resend OTP: $e')),
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
       );
     }
   }
@@ -279,12 +186,12 @@ class _OtpScreenState extends State<SignUpOtpScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(
-                          6,
+                          4,
                           (index) => Container(
                             width: 50,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: _focusNodes[index].hasFocus ? Colors.white.withOpacity(0.2) : Colors.white.withOpacity(0.1),
+                              color: Colors.white.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: TextField(
@@ -305,7 +212,7 @@ class _OtpScreenState extends State<SignUpOtpScreen> {
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: _isLoading ? null : _verifyOtp,
+                        onPressed: _verifyOtp,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1B0331),
                           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
@@ -314,24 +221,22 @@ class _OtpScreenState extends State<SignUpOtpScreen> {
                           ),
                           minimumSize: const Size(319, 49),
                         ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Done',
-                                    style: TextStyle(
-                                      color: Color(0xFFFAFBFC),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Poppins',
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward, color: Color(0xFFFAFBFC)),
-                                ],
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Done',
+                              style: TextStyle(
+                                color: Color(0xFFFAFBFC),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins',
                               ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward, color: Color(0xFFFAFBFC)),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
                       Row(
@@ -346,7 +251,7 @@ class _OtpScreenState extends State<SignUpOtpScreen> {
                             ),
                           ),
                           Text(
-                            '0:${_remainingSeconds.toString().padLeft(2, '0')}', 
+                            '0:$_timerSeconds',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -355,18 +260,6 @@ class _OtpScreenState extends State<SignUpOtpScreen> {
                           ),
                         ],
                       ),
-                      if (_remainingSeconds == 0)
-                        TextButton(
-                          onPressed: _resendOtp,
-                          child: const Text(
-                            'Resend OTP',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),

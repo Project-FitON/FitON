@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fiton/screens/fashee/fashee_screen.dart';
 
 void main() {
   runApp(const ChatApp());
@@ -30,13 +29,12 @@ class _ChatScreenState extends State<ChatScreen> {
     {
       "isUser": false,
       "text":
-          "I think the gold color frock you have is the best suit for a wedding, Nimasha. Let me show you.",
-      "image": "assets/images/feed/girl.jpeg",
+      "I think the gold color frock you have is the best suit for a wedding, Nimasha. Let me show you.",
     },
     {
       "isUser": false,
       "text":
-          "You can see I colored your hair in black. Don’t you think black-colored hair gives you more look with this dress? 🤞",
+      "You can see I colored your hair in black. Don't you think black-colored hair gives you more look with this dress? 🤞",
     },
   ];
 
@@ -99,12 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: IconButton(
             icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FasheeHomePage(),
-                ),
-              );
+              Navigator.pop(context);
             },
           ),
         ),
@@ -157,84 +150,84 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: messages.isNotEmpty
                   ? ListView.builder(
-                      padding: const EdgeInsets.all(10),
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final message = messages[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: message["isUser"]
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
-                            children: [
-                              if (!message["isUser"])
-                                const CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                    "assets/images/feed/mm.png", // Bot Image
-                                  ),
-                                ),
-                              if (!message["isUser"]) const SizedBox(width: 8),
-                              Flexible(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: message["isUser"]
-                                        ? Colors.purple.shade800
-                                        : Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        message["text"],
-                                        style: TextStyle(
-                                          color: message["isUser"]
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                      ),
-                                      if (message["image"] != null)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 5,
-                                          ),
-                                          child: Image.asset(
-                                            message["image"],
-                                            width: 150,
-                                            height: 150,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              if (message["isUser"]) const SizedBox(width: 8),
-                              if (message["isUser"])
-                                const CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                    "assets/images/feed/girl.jpeg", // User Image
-                                  ),
-                                ),
-                            ],
+                padding: const EdgeInsets.all(10),
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  final message = messages[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: message["isUser"]
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      children: [
+                        if (!message["isUser"])
+                          CircleAvatar(
+                            backgroundColor: Colors.purple.shade100,
+                            child: Icon(Icons.assistant, color: Colors.purple.shade800),
                           ),
-                        );
-                      },
-                    )
-                  : const Center(
-                      child: Text("No messages yet! Start chatting..."),
+                        if (!message["isUser"]) const SizedBox(width: 8),
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: message["isUser"]
+                                  ? Colors.purple.shade800
+                                  : Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  message["text"],
+                                  style: TextStyle(
+                                    color: message["isUser"]
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                ),
+                                if (message["image"] != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 5,
+                                    ),
+                                    child: Container(
+                                      width: 150,
+                                      height: 150,
+                                      color: Colors.grey.shade200,
+                                      child: Center(
+                                        child: Icon(Icons.image, size: 50, color: Colors.grey),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (message["isUser"]) const SizedBox(width: 8),
+                        if (message["isUser"])
+                          CircleAvatar(
+                            backgroundColor: Colors.purple.shade800,
+                            child: Icon(Icons.person, color: Colors.white),
+                          ),
+                      ],
                     ),
+                  );
+                },
+              )
+                  : const Center(
+                child: Text("No messages yet! Start chatting..."),
+              ),
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -256,7 +249,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           hintText: 'Ask Me Anything...',
                           border: InputBorder.none,
                           contentPadding:
-                              EdgeInsets.symmetric(horizontal: 20),
+                          EdgeInsets.symmetric(horizontal: 20),
                         ),
                       ),
                     ),
