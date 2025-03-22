@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../feed/nav_screen.dart';
+import '../settings/settings_screen.dart';
 import 'notifications_screen.dart';
 
 class AccountScreen extends StatefulWidget {
-  const AccountScreen({Key? key}) : super(key: key);
+  const AccountScreen({super.key});
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
@@ -83,7 +84,14 @@ class _AccountScreenState extends State<AccountScreen>
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: () {},
+                    onPressed: ()  {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SettingsScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -437,7 +445,7 @@ class OrdersScreen extends StatelessWidget {
 class ClothingItemCard extends StatelessWidget {
   final String imageUrl;
 
-  const ClothingItemCard({Key? key, required this.imageUrl}) : super(key: key);
+  const ClothingItemCard({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -487,8 +495,7 @@ class OrderItemCard extends StatelessWidget {
   final String imageUrl;
   final String status;
 
-  const OrderItemCard({Key? key, required this.imageUrl, required this.status})
-    : super(key: key);
+  const OrderItemCard({super.key, required this.imageUrl, required this.status});
 
   Color _getStatusColor() {
     switch (status.toLowerCase()) {
