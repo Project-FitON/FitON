@@ -40,7 +40,7 @@ class FasheeHomePage extends StatelessWidget {
                       icon: Icon(Icons.menu, color: Colors.black, size: 40),
                       onPressed: () {
                         // **Action when clicking the button**
-                        print("Menu button clicked!"); // Replace this with any action
+                        // Replace this with any action
                       },
                     ),
                   ),

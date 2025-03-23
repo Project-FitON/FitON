@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../feed/nav_screen.dart';
+import '../settings/settings_screen.dart';
 import 'notifications_screen.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -83,7 +84,14 @@ class _AccountScreenState extends State<AccountScreen>
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: () {},
+                    onPressed: ()  {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SettingsScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
