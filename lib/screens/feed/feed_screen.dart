@@ -11,6 +11,8 @@ import 'feed_components/main_buttons_component.dart'; // Import Main Buttons com
 import 'tryon_screen.dart'; // Import the TryOnScreen
 
 class FeedScreen extends StatefulWidget {
+  const FeedScreen({super.key});
+
   @override
   _FeedScreenState createState() => _FeedScreenState();
 }

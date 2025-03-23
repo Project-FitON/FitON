@@ -8,13 +8,13 @@ class ProductComponent extends StatelessWidget {
   final VoidCallback onTap; // Callback function to handle button tap
 
   const ProductComponent({
-    Key? key,
+    super.key,
     this.title = 'Long Sleeves Crop Top For Girls',
     this.realPrice = 4399,
     this.discountPrice = 5000,
     this.discountPercentage = 20,
     required this.onTap, // Pass the callback in the constructor
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

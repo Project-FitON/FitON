@@ -8,6 +8,8 @@ import 'package:fiton/screens/feed/feed_components/navigation_component.dart';
 import 'feed_components/main_buttons_component.dart'; // Import Navigation Component
 
 class TryOnScreen extends StatelessWidget {
+  const TryOnScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -323,6 +323,8 @@ class _AccountScreenState extends State<AccountScreen>
 
 // Collection Screen Widget (existing content)
 class CollectionScreen extends StatelessWidget {
+  const CollectionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -387,6 +389,8 @@ class CollectionScreen extends StatelessWidget {
 
 // Orders Screen Widget (similar layout but for orders)
 class OrdersScreen extends StatelessWidget {
+  const OrdersScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(

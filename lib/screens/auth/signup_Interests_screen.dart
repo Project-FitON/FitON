@@ -1,13 +1,14 @@
 import 'dart:ui';
-import 'package:fiton/screens/auth/login_otp_screen.dart';
-import 'package:fiton/screens/feed/feed_screen.dart';
+import 'signup_otp_screen.dart'; 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpInterestsScreen extends StatefulWidget {
   final String buyerId;
   final String nickname;
   final String gender;
   final DateTime birthday;
+  final String email; 
 
   const SignUpInterestsScreen({
     super.key,
@@ -15,6 +16,7 @@ class SignUpInterestsScreen extends StatefulWidget {
     required this.nickname,
     required this.gender,
     required this.birthday,
+    required this.email,
   });
 
   @override
@@ -23,6 +25,7 @@ class SignUpInterestsScreen extends StatefulWidget {
 
 class _SignUpInterestsScreenState extends State<SignUpInterestsScreen> {
   final Set<String> _selectedCategories = {'Casual Wear'};
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   final List<Map<String, String>> categories = [
     {'emoji': '💃', 'text': 'Party Wear'},
@@ -35,26 +38,50 @@ class _SignUpInterestsScreenState extends State<SignUpInterestsScreen> {
     {'emoji': '👟', 'text': 'Sports Wear'},
   ];
 
-  void _handleSubmission() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            LoginOtpScreen(phoneNumber: widget.buyerId), // Pass buyerId as phoneNumber
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
+  Future<void> _handleSubmission() async {
+    if (_selectedCategories.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select at least 2 interests')),
+      );
+      return;
+    }
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+    try {
+      await _supabase.from('buyers').update({
+        'interests': _selectedCategories.toList(),
+      }).eq('buyer_id', widget.buyerId);
 
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
+      // Navigate to SignupOtpScreen
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => SignUpOtpScreen(
+            buyerId: widget.buyerId,
+            nickname: widget.nickname,
+            gender: widget.gender,
+            birthday: widget.birthday,
+            interests: _selectedCategories.toList(),
+             email: widget.email,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save interests: $e')),
+      );
+    }
   }
 
   Widget _buildCheckbox(String emoji, String text) {
@@ -208,43 +235,6 @@ class _SignUpInterestsScreenState extends State<SignUpInterestsScreen> {
                     padding: const EdgeInsets.all(0),
                     child: ElevatedButton(
                       onPressed: _handleSubmission,
-                    child: const Text(
-                      "Submit",
-                      style: TextStyle(
-                        color: Color(0xFFFAFBFC),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Button
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => FeedScreen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              const begin = Offset(1.0, 0.0);
-                              const end = Offset.zero;
-                              const curve = Curves.ease;
-
-                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
-                          ),
-                        );
-                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1B0331),
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),

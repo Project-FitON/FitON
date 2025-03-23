@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class RightBottomButtons extends StatelessWidget {
+  const RightBottomButtons({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Row(
