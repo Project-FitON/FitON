@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class PaymentSettingsScreen extends StatefulWidget {
-  const PaymentSettingsScreen({Key? key}) : super(key: key);
+  const PaymentSettingsScreen({super.key});
 
   @override
   State<PaymentSettingsScreen> createState() => _PaymentSettingsScreenState();
@@ -263,7 +263,7 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
 }
 
 class AddCardModal extends StatefulWidget {
-  const AddCardModal({Key? key}) : super(key: key);
+  const AddCardModal({super.key});
 
   @override
   State<AddCardModal> createState() => _AddCardModalState();
@@ -694,7 +694,7 @@ class PaymentMethodCard extends StatelessWidget {
   final Widget? trailing;
 
   const PaymentMethodCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.iconBackgroundColor,
     required this.title,
@@ -705,7 +705,7 @@ class PaymentMethodCard extends StatelessWidget {
     required this.selectedBorderColor,
     this.onTap,
     this.trailing,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
