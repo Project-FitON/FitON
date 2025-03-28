@@ -1,3 +1,4 @@
+import 'package:fiton/services/placeholder_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fiton/models/review_model.dart';
 import 'feed_components/more_details_component.dart'; // Import the RightBottomButtons component
@@ -23,10 +24,23 @@ class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateM
   int currentProductIndex = 0;
   late AnimationController _controller; // Animation controller for smooth product transitions
   late Animation<Offset> _slideAnimation; // Slide animation for smooth transitions
+  
+  // Placeholder image URL for tryon screen
+  String? preloadedPlaceholderUrl;
 
   @override
   void initState() {
     super.initState();
+
+    // Preload the placeholder image URL for tryon screen
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      preloadedPlaceholderUrl = await PlaceholderService.preloadPlaceholderUrl(
+        context,
+        "d85fc6f3-6d3a-4ee1-aa6e-d3fae8b9ec3f", // Pass buyer_id
+      );
+    });
+    
+    // Fetch the reviews from the API
     fetchReviews();
 
     // Initialize the animation controller
@@ -77,11 +91,11 @@ class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateM
     return GestureDetector(
       onHorizontalDragEnd: (details) {
         if (details.primaryVelocity! < 0) {
-          // Left swipe detected, navigate to TryOnScreen with animation
+          // Left swipe detected, navigate to TryOnScreen with animation and pass the preloaded URL
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => TryOnScreen(),
+              pageBuilder: (context, animation, secondaryAnimation) => TryOnScreen(preloadedPlaceholderUrl: preloadedPlaceholderUrl),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return SlideTransition(
                   position: Tween<Offset>(

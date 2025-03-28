@@ -44,9 +44,13 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
+        env:
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
         run: flutter build apk --release --split-per-abi
 
       - name: Build iOS (IPA)
+        env:
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
         run: |
           flutter build ios --release --no-codesign
           cd build/ios/iphoneos
