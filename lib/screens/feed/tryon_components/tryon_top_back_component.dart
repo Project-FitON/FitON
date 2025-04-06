@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class TryOnTopBackToShoppingComponent extends StatelessWidget {
   final double width;
   final double height;
+  final VoidCallback onBackToShopping; // Add callback for back action
 
   const TryOnTopBackToShoppingComponent({
     super.key,
     this.width = 75,
     this.height = 77,
+    required this.onBackToShopping, // Require the callback
   });
 
   @override
@@ -22,12 +24,10 @@ class TryOnTopBackToShoppingComponent extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
-                Navigator.pop(context); // Goes back to the previous screen
-              },
-              borderRadius: BorderRadius.circular(12), // Rounded corners for ripple effect
-              highlightColor: Colors.white.withOpacity(0.3), // Highlight color on touch
-              splashColor: Colors.white.withOpacity(0.5), // Ripple effect color
+              onTap: onBackToShopping, // Trigger the callback
+              borderRadius: BorderRadius.circular(12),
+              highlightColor: Colors.white.withOpacity(0.3),
+              splashColor: Colors.white.withOpacity(0.5),
               child: SizedBox(
                 width: 30,
                 height: 29,

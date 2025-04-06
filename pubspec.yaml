@@ -41,9 +41,9 @@ dependencies:
   dotted_border: ^2.0.0+3
   image_picker:
   flutter_spinkit: ^5.2.1
-  liquid_swipe: ^3.1.0
   flutter_dotenv: ^5.2.1
   cached_network_image: ^3.4.1
+  flutter_media_downloader: ^2.0.0
 
 dev_dependencies:
   flutter_test:

@@ -17,23 +17,27 @@ final String? dependent_id = null;
 // Method to process the FitOn request
 class TryOnScreen extends StatefulWidget {
   final String? preloadedPlaceholderUrl;
+  final PageController pageController; // Add PageController parameter
 
   late final List<Widget> screens;
 
-  TryOnScreen({super.key, this.preloadedPlaceholderUrl});
+  TryOnScreen({super.key, this.preloadedPlaceholderUrl, required this.pageController});
 
   @override
   State<TryOnScreen> createState() => _TryOnScreenState();
 }
 
 class _TryOnScreenState extends State<TryOnScreen> {
-  List<String> tryonImageUrls = [];
+  List<String> previousScreenImages = [];
+  List<String> currentScreenImages = [];
+  List<String> nextScreenImages = [];
   List<String> buyerImageUrls = [];
   List<String> buyerImageIds = [];
-  bool isLoading = true;
+  bool isLoading = false;
   int BuyerImageCurrentIndex = 0;
   int TryOnImageCurrentIndex = 0;
   final PageController _pageController = PageController();
+  final PageController _horizontalPageController = PageController(); // Add a new PageController for horizontal scrolling
 
   final supabase = SupabaseClient(
     "https://oetruvmloogtbbrdjeyc.supabase.co",
@@ -52,19 +56,22 @@ class _TryOnScreenState extends State<TryOnScreen> {
   void initState() {
     super.initState();
 
-    // Add the placeholder URL to the list
+    // Add the placeholder URL to the current screen images
     if (widget.preloadedPlaceholderUrl != null) {
-      tryonImageUrls.add(widget.preloadedPlaceholderUrl!);
+      if (mounted) {
+        setState(() {
+          currentScreenImages.add(widget.preloadedPlaceholderUrl!);
+        });
+      }
+      print("preloadedPlaceholderUrl added to currentScreenImages: $currentScreenImages");
+    } else {
+      print("preloadedPlaceholderUrl is null");
     }
 
-    print("Initial tryonImageUrls: $tryonImageUrls");
-
-    // Delay fetching and generating images to ensure the placeholder is shown first
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(Duration(milliseconds: 500)); // Delay to show placeholder
       await _fetchUserUploadedPhotos(); // Fetch user-uploaded photos
-      await _generateTryonImage(); // Generate the try-on image
-      _startLoadingPhases(); // Start the phased messages
+      await _updateScreenImages(); // Update screen images
     });
   }
 
@@ -96,43 +103,6 @@ class _TryOnScreenState extends State<TryOnScreen> {
     return _loadingPhases[_loadingPhaseIndex];
   }
 
-  // Method to generate the try-on image
-  Future<void> _generateTryonImage() async {
-    String placeholderUrl = widget.preloadedPlaceholderUrl ?? '';
-
-    // Add the placeholder image only if it's not already in the list
-    if (!tryonImageUrls.contains(placeholderUrl)) {
-      if (mounted) {
-        setState(() {
-          tryonImageUrls.insert(0, placeholderUrl); // Ensure placeholder is the first item
-        });
-      }
-    }
-
-    String? generatedUrl = await processFitOnRequest(buyer_id, product_id, dependent_id);
-    if (generatedUrl != null) {
-      await precacheImage(CachedNetworkImageProvider(generatedUrl), context);
-      if (mounted) {
-        setState(() {
-          tryonImageUrls[0] = generatedUrl; // Replace placeholder with the generated image
-        });
-      }
-    }
-
-    // Preload all try-on images
-    for (String url in tryonImageUrls) {
-      await precacheImage(CachedNetworkImageProvider(url), context);
-    }
-
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
-
-    await _fetchOldTryonImages();
-  }
-
   // Method to fetch old try-on images
   Future<void> _fetchOldTryonImages() async {
     if (BuyerImageCurrentIndex >= buyerImageIds.length) return;
@@ -146,31 +116,60 @@ class _TryOnScreenState extends State<TryOnScreen> {
 
       if (response['generated_tryons'] != null) {
         List<String> relatedTryonImages = List<String>.from(response['generated_tryons']);
-        setState(() {
-          // Ensure the current buyer image remains the first URL
-          tryonImageUrls = [
-            buyerImageUrls[BuyerImageCurrentIndex], // Current buyer image
-            ...relatedTryonImages, // Old try-on images
-          ];
-        });
+        if (mounted) {
+          setState(() {
+            // Ensure the current buyer image remains the first URL
+            currentScreenImages = [
+              buyerImageUrls[BuyerImageCurrentIndex], // Current buyer image
+              ...relatedTryonImages, // Old try-on images
+            ];
+          });
+        }
 
         // Preload all try-on images
-        for (String url in tryonImageUrls) {
+        for (String url in currentScreenImages) {
           await precacheImage(CachedNetworkImageProvider(url), context);
         }
       } else {
         print("No old try-on images found for buyerImageId: ${buyerImageIds[BuyerImageCurrentIndex]}");
-        setState(() {
-          // Keep only the current buyer image if no old try-on images are found
-          tryonImageUrls = [buyerImageUrls[BuyerImageCurrentIndex]];
-        });
+        if (mounted) {
+          setState(() {
+            // Keep only the current buyer image if no old try-on images are found
+            currentScreenImages = [buyerImageUrls[BuyerImageCurrentIndex]];
+          });
+        }
       }
     } catch (e) {
       print("Error fetching old try-on images: $e");
-      setState(() {
-        // Keep only the current buyer image on error
-        tryonImageUrls = [buyerImageUrls[BuyerImageCurrentIndex]];
-      });
+      if (mounted) {
+        setState(() {
+          // Keep only the current buyer image on error
+          currentScreenImages = [buyerImageUrls[BuyerImageCurrentIndex]];
+        });
+      }
+    }
+  }
+
+  // Method to fetch old try-on images for a specific index
+  Future<void> _fetchOldTryonImagesForIndex(int index, List<String> targetList) async {
+    try {
+      final response = await supabase
+          .from('tryons')
+          .select('generated_tryons')
+          .eq('input_photo_id', buyerImageIds[index])
+          .single();
+
+      if (response['generated_tryons'] != null) {
+        List<String> relatedTryonImages = List<String>.from(response['generated_tryons']);
+        targetList.addAll(relatedTryonImages);
+
+        // Preload all images in the target list
+        for (String url in targetList) {
+          await precacheImage(CachedNetworkImageProvider(url), context);
+        }
+      }
+    } catch (e) {
+      print("Error fetching old try-on images for index $index: $e");
     }
   }
 
@@ -184,10 +183,12 @@ class _TryOnScreenState extends State<TryOnScreen> {
           .order('created_at', ascending: true);
 
       if (response.isNotEmpty) {
-        setState(() {
-          buyerImageUrls = List<String>.from(response.map((photo) => photo['photo_url']));
-          buyerImageIds = List<String>.from(response.map((photo) => photo['photo_id']));
-        });
+        if (mounted) {
+          setState(() {
+            buyerImageUrls = List<String>.from(response.map((photo) => photo['photo_url']));
+            buyerImageIds = List<String>.from(response.map((photo) => photo['photo_id']));
+          });
+        }
 
         // Preload all buyer images sequentially
         for (String url in buyerImageUrls) {
@@ -205,25 +206,29 @@ class _TryOnScreenState extends State<TryOnScreen> {
 
   // Generate try-on image for the current buyer image
   Future<void> _generateTryonImageForCurrentImage() async {
-    setState(() {
-      isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     // Start the loading phases
     _startLoadingPhases();
 
     // Ensure the first URL is the current buyer image or placeholder
-    if (tryonImageUrls.isEmpty || tryonImageUrls.first != buyerImageUrls[BuyerImageCurrentIndex]) {
-      setState(() {
-        if (tryonImageUrls.isNotEmpty) {
-          tryonImageUrls[0] = buyerImageUrls[BuyerImageCurrentIndex];
-        } else {
-          tryonImageUrls.insert(0, buyerImageUrls[BuyerImageCurrentIndex]);
-        }
-      });
+    if (currentScreenImages.isEmpty || currentScreenImages.first != buyerImageUrls[BuyerImageCurrentIndex]) {
+      if (mounted) {
+        setState(() {
+          if (currentScreenImages.isNotEmpty) {
+            currentScreenImages[0] = buyerImageUrls[BuyerImageCurrentIndex];
+          } else {
+            currentScreenImages.insert(0, buyerImageUrls[BuyerImageCurrentIndex]);
+          }
+        });
+      }
     }
 
-    print("tryonImageUrls before generating: $tryonImageUrls");
+    print("currentScreenImages before generating: $currentScreenImages");
 
     String? generatedUrl = await processFitOnRequest(
       buyer_id,
@@ -237,21 +242,65 @@ class _TryOnScreenState extends State<TryOnScreen> {
       await precacheImage(CachedNetworkImageProvider(generatedUrl), context); // Preload the generated image
       if (mounted) {
         setState(() {
-          // Replace the placeholder with the generated image
-          tryonImageUrls[0] = generatedUrl;
+          // Insert the generated image after the current buyer image
+          currentScreenImages.insert(1, generatedUrl);
         });
       }
+
+      // Automatically swipe horizontally to the generated image
+      await _horizontalPageController.animateToPage(
+        1, // Index of the generated image in the horizontal PageView
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else if (generatedUrl == null){
+      // Automatically swipe horizontally to the next image
+      await _horizontalPageController.animateToPage(
+        1, // Index of the generated image in the horizontal PageView
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
 
-    print("tryonImageUrls after generating: $tryonImageUrls");
 
-    setState(() {
-      isLoading = false;
-    });
+    print("currentScreenImages after generating: $currentScreenImages");
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
 
     await _fetchOldTryonImages(); // Fetch old try-on images again
   }
 
+  // Method to update screen images
+  Future<void> _updateScreenImages() async {
+    if (mounted) {
+      setState(() {
+        currentScreenImages = [buyerImageUrls[BuyerImageCurrentIndex]];
+      });
+    }
+
+    // Fetch old try-on images for the current screen
+    await _fetchOldTryonImages();
+
+    // Preload previous screen images
+    if (BuyerImageCurrentIndex > 0) {
+      previousScreenImages = [buyerImageUrls[BuyerImageCurrentIndex - 1]];
+      await _fetchOldTryonImagesForIndex(BuyerImageCurrentIndex - 1, previousScreenImages);
+    } else {
+      previousScreenImages = [];
+    }
+
+    // Preload next screen images
+    if (BuyerImageCurrentIndex + 1 < buyerImageUrls.length) {
+      nextScreenImages = [buyerImageUrls[BuyerImageCurrentIndex + 1]];
+      await _fetchOldTryonImagesForIndex(BuyerImageCurrentIndex + 1, nextScreenImages);
+    } else {
+      nextScreenImages = [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -262,42 +311,66 @@ class _TryOnScreenState extends State<TryOnScreen> {
           PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
-            itemCount: buyerImageUrls.length,
+            itemCount: buyerImageUrls.isNotEmpty ? buyerImageUrls.length : 1,
             onPageChanged: (index) async {
-              setState(() {
-                BuyerImageCurrentIndex = index;
-              });
-              // Pre-load the next buyer image if it exists
-              if (index + 1 < buyerImageUrls.length) {
-                precacheImage(CachedNetworkImageProvider(buyerImageUrls[index + 1]), context);
+              if (buyerImageUrls.isNotEmpty) {
+                if (mounted) {
+                  setState(() {
+                    BuyerImageCurrentIndex = index;
+                  });
+                }
+                await _updateScreenImages();
               }
-              await _generateTryonImageForCurrentImage();
             },
             itemBuilder: (context, index) {
-              return Stack(
-                children: [
-                  PageView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: tryonImageUrls.length,
-                    onPageChanged: (hIndex) {
-                      setState(() {
-                        TryOnImageCurrentIndex = hIndex;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      if (tryonImageUrls.isEmpty) {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                      return _buildTryOnImage(index);
-                    },
-                  ),
-                ],
+              List<String> imagesToShow;
+              if (buyerImageUrls.isEmpty) {
+                imagesToShow = currentScreenImages; // Show placeholder if no buyer images
+              } else if (index == BuyerImageCurrentIndex - 1) {
+                imagesToShow = previousScreenImages;
+              } else if (index == BuyerImageCurrentIndex) {
+                imagesToShow = currentScreenImages;
+              } else if (index == BuyerImageCurrentIndex + 1) {
+                imagesToShow = nextScreenImages;
+              } else {
+                imagesToShow = [];
+              }
+
+              return GestureDetector(
+                onDoubleTap: () async {
+                  if (mounted) {
+                    setState(() {
+                      isLoading = true;
+                    });
+                  }
+                  _startLoadingPhases();
+                  await _generateTryonImageForCurrentImage();
+                },
+                child: Stack(
+                  children: [
+                    PageView.builder(
+                      controller: _horizontalPageController, // Use the horizontal PageController
+                      scrollDirection: Axis.horizontal,
+                      itemCount: imagesToShow.length,
+                      itemBuilder: (context, index) {
+                        if (imagesToShow.isEmpty) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        return Stack(
+                          children: [
+                            _buildTryOnImage(imagesToShow[index]),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               );
             },
           ),
 
-          // Top Overlay
-          Positioned(top: 0, left: 0, right: 0, child: _buildStaticTopOverlay()),
+          // Back Overlay
+          Positioned(top: 0, left: 0, right: 0, child: _buildBackOverlay()),
 
           // Bottom Overlay
           Positioned(bottom: 0, left: 0, right: 0, child: _buildStaticBottomOverlay()),
@@ -310,14 +383,18 @@ class _TryOnScreenState extends State<TryOnScreen> {
   }
 
   // Try-on image builder
-  Widget _buildTryOnImage(int index) {
+  Widget _buildTryOnImage(String imageUrl) {
     return Stack(
       children: [
-        Center(
+        SizedBox.expand( // Ensure the image fills the available space
           child: CachedNetworkImage(
-            imageUrl: tryonImageUrls[index],
-            fit: BoxFit.scaleDown,
-            placeholder: (context, url) => CircularProgressIndicator(),
+            imageUrl: imageUrl,
+            fit: BoxFit.scaleDown, // Ensure the image covers the full screen
+            placeholder: (context, url) => Center(
+              child: SizedBox(
+                child: CircularProgressIndicator(),
+              ),
+            ),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         ),
@@ -325,9 +402,11 @@ class _TryOnScreenState extends State<TryOnScreen> {
         Positioned(top: 0, left: 0, right: 0, child: _buildTopOverlay()),
         // Bottom Overlay
         Positioned(bottom: 0, left: 0, right: 0, child: _buildBottomOverlay()),
+        // Bottom Overlay
+        Positioned(top: 0, left: 0, right: 0, child: _buildDownloadOverlay(imageUrl)),
       ],
     );
-}
+  }
 
   // Helper method to build top overlay
   Widget _buildTopOverlay() {
@@ -347,25 +426,49 @@ class _TryOnScreenState extends State<TryOnScreen> {
     );
   }
 
-  // Helper method to build static top overlay
-  Widget _buildStaticTopOverlay() {
+  // Helper method to build Back overlay
+  Widget _buildBackOverlay() {
     return Container(
       height: 242,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 50, left: 8),
             child: Align(
               alignment: Alignment.topRight,
-              child: TryOnTopBackToShoppingComponent(),
+              child: TryOnTopBackToShoppingComponent(
+                onBackToShopping: () {
+                  widget.pageController.animateToPage(
+                    0,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  ); // Swipe back to the feed screen
+                },
+              ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to build Download overlay
+  Widget _buildDownloadOverlay(String imageUrl) {
+    return Container(
+      height: 242,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
           Padding(
             padding: const EdgeInsets.only(top: 50, right: 8),
             child: Align(
               alignment: Alignment.topRight,
-              child: TryOnTopDownloadComponent(),
+              child: TryOnTopDownloadComponent(
+                currentImageUrl: currentScreenImages.isNotEmpty
+                    ? imageUrl // Pass the first image in the current screen
+                    : '', // Fallback to an empty string if no image is available
+              ),
             ),
           ),
         ],
