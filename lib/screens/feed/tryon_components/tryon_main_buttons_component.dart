@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class TryOnMainButtonsComponent extends StatelessWidget {
-  final String orderCount;
 
   const TryOnMainButtonsComponent({
     super.key,
-    this.orderCount = '34K',
   });
 
   @override
@@ -87,19 +85,6 @@ class TryOnMainButtonsComponent extends StatelessWidget {
                     'assets/images/feed/buy-now.png',
                     fit: BoxFit.contain,
                   ),
-                ),
-              ),
-            ),
-            // Order count text, shifted down by 33 pixels
-            Transform.translate(
-              offset: Offset(0, 33), // Moves the text downwards
-              child: Text(
-                orderCount, // Ensure orderCount is a string
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
                 ),
               ),
             ),

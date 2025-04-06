@@ -36,7 +36,7 @@ class _FeedScreenState extends State<FeedScreen> with SingleTickerProviderStateM
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       preloadedPlaceholderUrl = await PlaceholderService.preloadPlaceholderUrl(
         context,
-        "d85fc6f3-6d3a-4ee1-aa6e-d3fae8b9ec3f", // Pass buyer_id
+        "009f5ebe-681a-4f2a-a25a-619362b4c606", // Pass buyer_id
       );
     });
     

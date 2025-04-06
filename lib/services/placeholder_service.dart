@@ -12,12 +12,10 @@ class PlaceholderService {
       final personResponse = await supabase
           .from('photos')
           .select('photo_url')
-          .eq('buyer_id', buyerId)
-          .single();
+          .eq('buyer_id', buyerId);
 
-      if (personResponse != null && personResponse['photo_url'] != null) {
-        String placeholderUrl = personResponse['photo_url'];
-        placeholderUrl = "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/$placeholderUrl";
+      if (personResponse.isNotEmpty) {
+        String placeholderUrl = personResponse[0]['photo_url'];
         await precacheImage(NetworkImage(placeholderUrl), context); // Preload the image
         print("placeholder URL preloaded: $placeholderUrl");
         return placeholderUrl;

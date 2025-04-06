@@ -3,20 +3,17 @@ import 'package:http/http.dart' as http;
 import 'package:supabase/supabase.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-Future<String?> processFitOnRequest(String buyerId, String productId, String? dependentId) async {
-  final String buyer_id = buyerId;
-  final String product_id = productId;
-  final String? dependent_id = dependentId;
+Future<String?> processFitOnRequest(String buyerId, String productId, String? dependentId, [String? buyerImageId, String? buyerImageUrl]) async {
   String? owner;
-  String? owner_id;
+  String? ownerId;
 
   // Check for the correct owner
-  if (dependent_id == null) {
+  if (dependentId == null) {
     owner = "buyer_id";
-    owner_id = buyerId;
+    ownerId = buyerId;
   } else {
     owner = "dependent_id";
-    owner_id = dependent_id;
+    ownerId = dependentId;
   }
 
   // Initialize Supabase
@@ -25,47 +22,50 @@ Future<String?> processFitOnRequest(String buyerId, String productId, String? de
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ldHJ1dm1sb29ndGJicmRqZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODkxOTQsImV4cCI6MjA1MzU2NTE5NH0.75FTVi-mQT8JEMIdqNTkN7--Hg1GCuqFydrBnmYzl0o", // anon key
   );
 
-  // Call the main function
   try {
-    print("Fetching buyer image...");
-    final personResponse = await supabase
-        .from('photos')
-        .select('photo_url, photo_id')
-        .eq(owner!, owner_id!)
-        .single();
-    print("Buyer image fetched: ${personResponse['photo_url']}");
+    String inputPhotoId;
+    String personImageUrl;
 
-    print("Fetching product image...");
+    if (buyerImageId != null && buyerImageUrl != null) {
+      // Use provided buyerImageId and buyerImageUrl
+      inputPhotoId = buyerImageId;
+      personImageUrl = buyerImageUrl;
+      print("Using provided buyer image ID and URL.");
+    } else {
+      // Fetch data from Supabase
+      final personResponse = await supabase
+          .from('photos')
+          .select('photo_url, photo_id')
+          .eq(owner, ownerId);
+      inputPhotoId = personResponse[0]['photo_id'];
+      personImageUrl = personResponse[0]['photo_url'];
+      print("Buyer image fetched");
+    }
+
     final productResponse = await supabase
         .from('products')
-        .select('images')
-        .eq('product_id', product_id)
+        .select('images, wear')
+        .eq('product_id', productId)
         .single();
-    print("Product image fetched: ${productResponse['images'][0]}");
-
-    print("Data fetched successfully!");
+    print("Product image fetched");
 
     if (!productResponse.containsKey('images') || productResponse['images'].isEmpty) {
       print("Error: No product images found.");
       return null;
     }
 
-    // Extract data
-    String inputPhotoId = personResponse['photo_id'];
-    String personImagePath = personResponse['photo_url'];
-    String productImagePath = productResponse['images'][0];
-
-    String personImageUrl =
-        "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/$personImagePath";
-    String productImageUrl =
-        "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/$productImagePath";
+    // Extract product features
+    String wearType = productResponse['wear'];
+    String productImageUrl = productResponse['images'][0];
 
     print("Person Image URL: $personImageUrl");
     print("Product Image URL: $productImageUrl");
+    print("Person Wear Type URL: $wearType");
 
     // Call the API
     print("Calling FitON API...");
-    String? generatedUrl = await callFitONAPI(buyer_id, product_id, dependent_id, personImageUrl, productImageUrl, inputPhotoId, supabase, owner!, owner_id!);
+    String? generatedUrl = await callFitONAPI(
+        buyerId, productId, dependentId, personImageUrl, productImageUrl, inputPhotoId, wearType, supabase, owner, ownerId);
     print("Generated URL: $generatedUrl");
     return generatedUrl;
   } catch (e) {
@@ -75,24 +75,25 @@ Future<String?> processFitOnRequest(String buyerId, String productId, String? de
 }
 
 Future<String?> callFitONAPI(
-    String buyer_id,
-    String product_id,
-    String? dependent_id,
+    String buyerId,
+    String productId,
+    String? dependentId,
     String personImageUrl,
     String productImageUrl,
     String inputPhotoId,
+    String wearType,
     SupabaseClient supabase,
     String owner,
     String ownerId) async {
   final String apiUrl = "https://dilshaniru-fiton-api.hf.space/call/submit_function";
-  await dotenv.load();
+  await dotenv.load(fileName: 'assets/.env');
   final String? hfToken = dotenv.env['HUGGINGFACE_TOKEN'];
   print("Token is: $hfToken"); // Debugging only
 
   final List<dynamic> requestData = [
     {"background": {"path": personImageUrl}, "layers": [], "composite": null},
     {"path": productImageUrl},
-    "overall",
+    wearType,
     50,
     2.5,
     42,
@@ -145,14 +146,14 @@ Future<String?> callFitONAPI(
               try {
                 print("Uploading to Supabase...");
                 String uploadedUrl = await uploadToSupabaseStorage(
-                    buyer_id, product_id, dependent_id, generatedUrl, supabase, owner, ownerId);
+                    buyerId, productId, dependentId, generatedUrl, supabase, owner, ownerId);
 
                 if (uploadedUrl.isNotEmpty) {
                   print("Successfully uploaded to Supabase Storage: $uploadedUrl");
 
                   // Store in database
-                  await storeTryonData(buyer_id, product_id, dependent_id, supabase, inputPhotoId,
-                      uploadedUrl, owner, ownerId);
+                  await storeTryonData(buyerId, productId, dependentId, supabase, inputPhotoId,
+                      uploadedUrl);
                 }
               } catch (e) {
                 print("Error in background tasks: $e");
@@ -180,25 +181,25 @@ Future<String?> callFitONAPI(
 }
 
 // Upload the generated image to Supabase Storage
-Future<String> uploadToSupabaseStorage(String buyer_id, String product_id, String? dependent_id, String imageUrl, SupabaseClient supabase, String owner, String ownerId) async {
+Future<String> uploadToSupabaseStorage(String buyerId, String productId, String? dependentId, String imageUrl, SupabaseClient supabase, String owner, String ownerId) async {
   try {
     final response = await http.get(Uri.parse(imageUrl));
     if (response.statusCode == 200) {
       String fileName = "tryon_${DateTime.now().millisecondsSinceEpoch}.webp";
 
       // Upload to Supabase Storage
-      if (dependent_id == null) {
+      if (dependentId == null) {
         // Upload to buyer's folder
         final storageResponse = await supabase.storage
             .from('fiton')
-            .uploadBinary('tryons/$buyer_id/$fileName', response.bodyBytes, fileOptions: FileOptions(contentType: "image/webp"));
-        return "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/fiton/tryons/$buyer_id/$fileName";
+            .uploadBinary('tryons/$buyerId/$fileName', response.bodyBytes, fileOptions: FileOptions(contentType: "image/webp"));
+        return "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/fiton/tryons/$buyerId/$fileName";
             } else {
         // Upload to dependent's folder
         final storageResponse = await supabase.storage
           .from('fiton')
-          .uploadBinary('tryons/$buyer_id/$dependent_id/$fileName', response.bodyBytes, fileOptions: FileOptions(contentType: "image/webp"));
-        return "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/fiton/tryons/$buyer_id/$dependent_id/$fileName";
+          .uploadBinary('tryons/$buyerId/$dependentId/$fileName', response.bodyBytes, fileOptions: FileOptions(contentType: "image/webp"));
+        return "https://oetruvmloogtbbrdjeyc.supabase.co/storage/v1/object/public/fiton/tryons/$buyerId/$dependentId/$fileName";
             }
 
     } else {
@@ -211,13 +212,13 @@ Future<String> uploadToSupabaseStorage(String buyer_id, String product_id, Strin
 }
 
 // Store the generated image URL in the database
-Future<void> storeTryonData(String buyer_id, String product_id, String? dependent_id, SupabaseClient supabase, String inputPhotoId, String generatedTryonUrl, String owner, String ownerId) async {
+Future<void> storeTryonData(String buyerId, String productId, String? dependentId, SupabaseClient supabase, String inputPhotoId, String generatedTryonUrl) async {
   try {
-    // Step 1: Check if a record with the same buyer_id and dependent_id exists
+    // Step 1: Check if a record with the same buyer_id and input_photo_id exists
     final existingRecord = await supabase
         .from('tryons')
         .select('tryon_id, generated_tryons')
-        .eq(owner, ownerId) // Ensure correct column name
+        .eq('input_photo_id', inputPhotoId) // Ensure correct column name
         .maybeSingle(); // Prevents error if no record exists
 
     if (existingRecord != null) {
@@ -226,7 +227,7 @@ Future<void> storeTryonData(String buyer_id, String product_id, String? dependen
 
       // Step 3: Add the new image URL if it's not already in the list
       if (!currentImages.contains(generatedTryonUrl)) {
-        currentImages.add(generatedTryonUrl);
+        currentImages.insert(0, generatedTryonUrl); // Add to the beginning of the list
 
         // Step 4: Update the record in Supabase
         final updateResponse = await supabase
@@ -246,9 +247,9 @@ Future<void> storeTryonData(String buyer_id, String product_id, String? dependen
     } else {
       // Step 5: If no record exists, insert a new row
       final insertResponse = await supabase.from('tryons').insert({
-        "buyer_id": buyer_id,
-        "dependent_id": dependent_id,
-        "product_id": product_id,
+        "buyer_id": buyerId,
+        "dependent_id": dependentId,
+        "product_id": productId,
         "input_photo_id": inputPhotoId,
         "generated_tryons": [generatedTryonUrl], // Store as an array
       }).select();
