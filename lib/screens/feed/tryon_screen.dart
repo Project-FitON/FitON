@@ -293,22 +293,24 @@ class TryOnScreenState extends State<TryOnScreen> with SingleTickerProviderState
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-    } else if (generatedUrl == null){
+
+      print("currentScreenImages after generating: $currentScreenImages");
+
+      if (mounted) {
+        setState(() {
+          isGeneratingTryOn = false; // Reset the flag after try-on generation
+        });
+      }
+      
+      return; // Exit early to avoid unnecessary updates
+
+    } else if (generatedUrl == null) {
       // Automatically swipe horizontally to the next image
       await _horizontalPageController.animateToPage(
         1, // Index of the generated image in the horizontal PageView
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-    }
-
-
-    print("currentScreenImages after generating: $currentScreenImages");
-
-    if (mounted) {
-      setState(() {
-        isGeneratingTryOn = false; // Reset the flag after try-on generation
-      });
     }
 
     await _fetchOldTryonImages(); // Fetch old try-on images again
