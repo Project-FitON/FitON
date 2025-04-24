@@ -7,12 +7,12 @@ class SellerComponent extends StatelessWidget {
   final VoidCallback onTap; // Callback function to handle tap action
 
   const SellerComponent({
-    Key? key,
+    super.key,
     this.profileImage = 'assets/images/feed/profile.jpg',
     this.name = 'Fashion',
     this.followers = '1k Followers',
     required this.onTap, // Required parameter for the onTap callback
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

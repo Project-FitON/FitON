@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TryOnTopBackToShoppingComponent extends StatelessWidget {
-  const TryOnTopBackToShoppingComponent({Key? key}) : super(key: key);
+  const TryOnTopBackToShoppingComponent({super.key});
 
   @override
   Widget build(BuildContext context) {

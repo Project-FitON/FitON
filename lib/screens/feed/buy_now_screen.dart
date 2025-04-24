@@ -1,17 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:fiton/models/cart_items_model.dart';
+import 'package:fiton/models/order_model.dart'; // Import the Order model
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({super.key});
+  final List<CartItems> cartItems;
+  final double total;
+
+  const CheckoutScreen({
+    super.key,
+    required this.cartItems,
+    required this.total,
+  });
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  String selectedPayment = 'Google Pay';
-  String addressType = 'Home';
-  String streetAddress = '123 Main Street, Apt 4B';
-  String cityAddress = 'Colombo 07, 10001';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  String? selectedPaymentId;
+  List<Map<String, dynamic>> paymentMethods = [];
+  bool isLoading = true;
+  final TextEditingController _addressController = TextEditingController();
+  String? _savedAddressId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fetchPaymentMethods();
+  }
+
+  Future<void> _fetchPaymentMethods() async {
+    try {
+      // Fetch payment methods from the payments table
+      final paymentResponse = await _supabase
+          .from('payments')
+          .select('payment_id, method');
+
+      setState(() {
+        paymentMethods = List<Map<String, dynamic>>.from(paymentResponse);
+
+        // Add "Cash on Delivery" with exact string
+        paymentMethods.add({
+          'payment_id': 'cash_on_delivery',
+          'method': 'Cash on Delivery', // Exact string from the database
+        });
+
+        if (paymentMethods.isNotEmpty) {
+          selectedPaymentId = paymentMethods.first['payment_id'] as String?;
+        }
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load payment methods: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _saveAddress() async {
+    if (_addressController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a delivery address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Save the address to the buyers table
+      final response =
+          await _supabase.from('buyers').insert({
+            'address': _addressController.text,
+          }).select();
+
+      if (response.isNotEmpty) {
+        setState(() {
+          _savedAddressId = response.first['buyer_id'] as String?;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save address: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  String _getOrderStatus(String paymentMethod) {
+    // Define your logic for determining the status
+    if (paymentMethod.toLowerCase() == 'cash on delivery') {
+      return 'Unpaid'; // Default status for cash on delivery
+    } else if (paymentMethod.toLowerCase() == 'credit card' ||
+        paymentMethod.toLowerCase() == 'debit card') {
+      return 'To Ship'; // Default status for card payments
+    } else if (paymentMethod.toLowerCase() == 'paypal') {
+      return 'Unpaid'; // Default status for PayPal
+    } else {
+      return 'Unpaid'; // Default status for unknown payment methods
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,19 +121,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: SafeArea(
         bottom: false,
         child: Scaffold(
-          backgroundColor: Colors.grey[100],
+          backgroundColor: Colors.white,
           body: Column(
             children: [
-              // Custom App Bar
               _buildAppBar(context),
-
-              // Main Content
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: 24),
+                      _buildOrderSummary(),
                       const SizedBox(height: 24),
                       _buildDeliveryAddress(),
                       const SizedBox(height: 24),
@@ -41,8 +141,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                 ),
               ),
-
-              // Bottom Payment Button
               _buildPaymentButton(),
             ],
           ),
@@ -73,18 +171,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Text(
                 'CHECKOUT',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black, // Changed to black
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const Text(
-              'Total: 10 750 Rs',
-              style: TextStyle(
-                color: Colors.white,
+            Text(
+              'Total: \$${widget.total.toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: Colors.black,
                 fontSize: 16,
-              ),
+              ), // Changed to black
             ),
           ],
         ),
@@ -92,95 +190,72 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  void _showEditAddressDialog() {
-    final typeController = TextEditingController(text: addressType);
-    final streetController = TextEditingController(text: streetAddress);
-    final cityController = TextEditingController(text: cityAddress);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Edit Address',
+  Widget _buildOrderSummary() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Order Summary',
           style: TextStyle(
-            color: Color(0xFF2D1441),
+            fontSize: 16,
             fontWeight: FontWeight.bold,
-          ),
+            color: Colors.black,
+          ), // Changed to black
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: typeController,
-                decoration: const InputDecoration(
-                  labelText: 'Address Type',
-                  labelStyle: TextStyle(color: Color(0xFF2D1441)),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF2D1441)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: streetController,
-                decoration: const InputDecoration(
-                  labelText: 'Street Address',
-                  labelStyle: TextStyle(color: Color(0xFF2D1441)),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF2D1441)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: cityController,
-                decoration: const InputDecoration(
-                  labelText: 'City & Postal Code',
-                  labelStyle: TextStyle(color: Color(0xFF2D1441)),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF2D1441)),
-                  ),
-                ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
+          child: Column(
+            children:
+                widget.cartItems
+                    .map(
+                      (item) => ListTile(
+                        leading: Image.network(
+                          item.imageUrl,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.image, color: Colors.black);
+                          },
+                        ),
+                        title: Text(
+                          item.productName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                          ), // Changed to black
+                        ),
+                        subtitle: Text(
+                          '${item.quantity} x \$${item.productPrice.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.black,
+                          ), // Changed to black
+                        ),
+                        trailing: Text(
+                          '\$${(item.productPrice * item.quantity).toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ), // Changed to black
+                        ),
+                      ),
+                    )
+                    .toList(),
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                addressType = typeController.text;
-                streetAddress = streetController.text;
-                cityAddress = cityController.text;
-              });
-              Navigator.pop(context);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Address updated successfully'),
-                  backgroundColor: Color(0xFF2D1441),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2D1441),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -193,84 +268,45 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-          ),
+            color: Colors.black,
+          ), // Changed to black
         ),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
+        TextField(
+          controller: _addressController,
+          decoration: InputDecoration(
+            hintText: 'Enter delivery address',
+            hintStyle: const TextStyle(
+              color: Colors.black54,
+            ), // Changed hint text color
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            suffixIcon: IconButton(
+              icon: const Icon(
+                Icons.save,
+                color: Colors.black,
+              ), // Changed icon color
+              onPressed: _saveAddress,
+            ),
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2D1441),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.location_on,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      addressType,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$streetAddress\n$cityAddress',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: _showEditAddressDialog,
-                child: const Text(
-                  'Change',
-                  style: TextStyle(
-                    color: Color(0xFF2D1441),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          style: const TextStyle(color: Colors.black), // Changed text color
+          maxLines: 3,
         ),
+        if (_savedAddressId != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Address saved!',
+              style: TextStyle(
+                color: Colors.green.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
       ],
     );
   }
 
   Widget _buildPaymentMethods() {
-    final paymentMethods = [
-      {'title': 'Google Pay', 'icon': Icons.g_mobiledata},
-      {'title': 'Credit/Debit Card', 'icon': Icons.credit_card},
-      {'title': 'PayPal', 'icon': Icons.payment},
-      {'title': 'Cash on Delivery', 'icon': Icons.money},
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -279,19 +315,34 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-          ),
+            color: Colors.black,
+          ), // Changed to black
         ),
         const SizedBox(height: 12),
-        ...paymentMethods.map((method) => _PaymentOption(
-          icon: method['icon'] as IconData,
-          title: method['title'] as String,
-          isSelected: selectedPayment == method['title'],
-          onSelect: () {
-            setState(() {
-              selectedPayment = method['title'] as String;
-            });
-          },
-        )),
+        isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : paymentMethods.isEmpty
+            ? const Text(
+              'No payment methods available.',
+              style: TextStyle(color: Colors.black), // Changed to black
+            )
+            : Column(
+              children:
+                  paymentMethods
+                      .map(
+                        (method) => _PaymentOption(
+                          method: method['method'] ?? 'No method provided',
+                          isSelected: selectedPaymentId == method['payment_id'],
+                          onSelect: () {
+                            setState(() {
+                              selectedPaymentId =
+                                  method['payment_id'] as String?;
+                            });
+                          },
+                        ),
+                      )
+                      .toList(),
+            ),
       ],
     );
   }
@@ -315,13 +366,71 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Processing payment with $selectedPayment'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+        onPressed: () async {
+          if (_savedAddressId == null || selectedPaymentId == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Please enter an address and select payment method',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          try {
+            final selectedPayment = paymentMethods.firstWhere(
+              (method) => method['payment_id'] == selectedPaymentId,
+            );
+
+            // Determine the order status dynamically
+            final orderStatus = _getOrderStatus(selectedPayment['method']);
+
+            // Use the raw `method` value directly
+            final paymentMethod = selectedPayment['method'] as String;
+
+            // Generate a new UUID for the order
+            final String orderId = Uuid().v4();
+
+            // Ensure the buyer_id and shop_id are valid UUIDs
+            final buyerId = _savedAddressId!; // This should be a valid UUID
+            final shopId =
+                'd58d639f-e15d-4b8c-bdfd-c9e44355a049'; // Replace with actual shop ID (valid UUID)
+
+            // Create an Order object
+            final order = Order(
+              orderId: orderId,
+              buyerId: buyerId,
+              shopId: shopId,
+              status:
+                  orderStatus, // Ensure this matches the allowed values in the check constraint
+              paymentMethod:
+                  paymentMethod, // Directly use the value from the database
+              totalPrice: widget.total,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+
+            // Save the order to the orders table
+            await _supabase.from('orders').insert(order.toJson());
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Order placed successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Navigator.pop(context);
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to place order: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF2D1441),
@@ -330,19 +439,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Swipe to pay',
-              style: TextStyle(
-                color: Colors.white,
+              'Swipe to pay \$${widget.total.toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: Colors.white, // Keep this white for contrast
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward, color: Colors.white),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward, color: Colors.white),
           ],
         ),
       ),
@@ -351,14 +460,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 }
 
 class _PaymentOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
+  final String method;
   final bool isSelected;
   final VoidCallback onSelect;
 
   const _PaymentOption({
-    required this.icon,
-    required this.title,
+    required this.method,
     required this.isSelected,
     required this.onSelect,
   });
@@ -391,13 +498,14 @@ class _PaymentOption extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF2D1441)
-                    : const Color(0xFF2D1441).withOpacity(0.1),
+                color:
+                    isSelected
+                        ? const Color(0xFF2D1441)
+                        : const Color(0xFF2D1441).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                icon,
+                Icons.payment,
                 color: isSelected ? Colors.white : const Color(0xFF2D1441),
                 size: 24,
               ),
@@ -405,11 +513,11 @@ class _PaymentOption extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                title,
+                method,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? const Color(0xFF2D1441) : Colors.black,
+                  color: Colors.black, // Changed to black
                 ),
               ),
             ),

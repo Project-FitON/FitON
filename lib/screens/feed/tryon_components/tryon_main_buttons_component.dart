@@ -4,9 +4,9 @@ class TryOnMainButtonsComponent extends StatelessWidget {
   final String orderCount;
 
   const TryOnMainButtonsComponent({
-    Key? key,
+    super.key,
     this.orderCount = '34K',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +20,14 @@ class TryOnMainButtonsComponent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Share button
-              Container(
+              SizedBox(
                 width: 25,
                 height: 25,
                 child: Image.asset('assets/images/feed/share.png',fit: BoxFit.contain),
               ),
               SizedBox(width: 150),
               // Cart button
-              Container(
+              SizedBox(
                 width: 25,
                 height: 25,
                 child: Image.asset('assets/images/feed/cart.png',fit: BoxFit.contain),
@@ -40,7 +40,7 @@ class TryOnMainButtonsComponent extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             // Button at the bottom
-            Container(
+            SizedBox(
               width: 48,
               height: 48,
               child: Image.asset('assets/images/feed/buy-now.png',fit: BoxFit.contain),
@@ -49,7 +49,7 @@ class TryOnMainButtonsComponent extends StatelessWidget {
             Transform.translate(
               offset: Offset(0, 33), // Moves the text downwards
               child: Text(
-                '$orderCount', // Ensure orderCount is a string
+                orderCount, // Ensure orderCount is a string
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 13,

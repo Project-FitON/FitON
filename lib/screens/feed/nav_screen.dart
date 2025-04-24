@@ -6,6 +6,8 @@ import 'feed_screen.dart';
 import 'package:fiton/screens/fashee/fashee_screen.dart';
 
 class NavScreen extends StatelessWidget {
+  const NavScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(

@@ -4,7 +4,7 @@ import 'package:fiton/screens/fashee/fashee_screen.dart';
 import 'package:fiton/screens/cart/cart_screen.dart';
 import 'package:fiton/screens/account/account_screen.dart';
 class NavigationComponent extends StatefulWidget {
-  const NavigationComponent({Key? key}) : super(key: key);
+  const NavigationComponent({super.key});
 
   @override
   _NavigationComponentState createState() => _NavigationComponentState();

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Order {
   final String orderId;
   final String buyerId;
@@ -19,20 +21,20 @@ class Order {
     required this.updatedAt,
   });
 
-  factory Order.fromMap(Map<String, dynamic> data) {
+  factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      orderId: data['order_id'],
-      buyerId: data['buyer_id'],
-      shopId: data['shop_id'],
-      status: data['status'],
-      paymentMethod: data['payment_method'],
-      totalPrice: data['total_price'],
-      createdAt: DateTime.parse(data['created_at']),
-      updatedAt: DateTime.parse(data['updated_at']),
+      orderId: json['order_id'],
+      buyerId: json['buyer_id'],
+      shopId: json['shop_id'],
+      status: json['status'],
+      paymentMethod: json['payment_method'],
+      totalPrice: json['total_price'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'order_id': orderId,
       'buyer_id': buyerId,
@@ -44,4 +46,7 @@ class Order {
       'updated_at': updatedAt.toIso8601String(),
     };
   }
+
+  @override
+  String toString() => jsonEncode(toJson());
 }

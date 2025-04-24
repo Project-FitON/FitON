@@ -4,6 +4,8 @@ import 'add_dependents_screen.dart';
 import 'edit_dependent_screen.dart';
 
 class DependentsScreen extends StatefulWidget {
+  const DependentsScreen({super.key});
+
   @override
   _DependentsScreenState createState() => _DependentsScreenState();
 }

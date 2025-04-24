@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fiton/screens/account/account_screen.dart';
 
 class NavScreen extends StatelessWidget {
+  const NavScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
