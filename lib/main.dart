@@ -1,3 +1,14 @@
+
+import 'package:fiton/screens/account/account_screen.dart';
+import 'package:fiton/screens/account/notifications_screen.dart';
+import 'package:fiton/screens/settings/addressbook.dart';
+import 'package:fiton/screens/settings/payment_settings.dart';
+import 'package:fiton/screens/settings/settings_screen.dart';
+import 'package:fiton/screens/add/add_dependents_screen.dart';
+import 'package:fiton/screens/add/dependents_screen.dart';
+import 'package:fiton/screens/cart/cart_screen.dart';
+import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
+import 'package:fiton/screens/fashee/fashee_screen.dart';
 import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,8 +17,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is ready
 
   await Supabase.initialize(
-    url: 'https://oetruvmloogtbbrdjeyc.supabase.co', // Replace with your Supabase URL
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ldHJ1dm1sb29ndGJicmRqZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODkxOTQsImV4cCI6MjA1MzU2NTE5NH0.75FTVi-mQT8JEMIdqNTkN7--Hg1GCuqFydrBnmYzl0o', // Replace with your Supabase anon key
+    url:
+        'https://oetruvmloogtbbrdjeyc.supabase.co', // Replace with your Supabase URL
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ldHJ1dm1sb29ndGJicmRqZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODkxOTQsImV4cCI6MjA1MzU2NTE5NH0.75FTVi-mQT8JEMIdqNTkN7--Hg1GCuqFydrBnmYzl0o', // Replace with your Supabase anon key
   );
 
   runApp(FitOn());
@@ -24,9 +37,8 @@ class FitOn extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-      home: Scaffold(
-        body: OnboardingScreen(),
-        ),
+
+      home: Scaffold(body: OnboardingScreen()),
     );
   }
 }
