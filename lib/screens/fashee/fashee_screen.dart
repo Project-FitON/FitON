@@ -6,14 +6,19 @@ import 'package:flutter/material.dart';
 class FasheeHomePage extends StatelessWidget {
   FasheeHomePage({super.key});
 
-  final TextEditingController _textController = TextEditingController(); // Controller added
+  final TextEditingController _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
+          width: screenWidth,
+          height: screenHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -28,73 +33,78 @@ class FasheeHomePage extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  // ✅ **Fixed: Clickable Menu Button**
+                  // Menu Button
                   Container(
                     padding: EdgeInsets.all(8),
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3 * 255),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: IconButton(
                       icon: Icon(Icons.menu, color: Colors.black, size: 40),
                       onPressed: () {
-                        // **Action when clicking the button**
-                        // Replace this with any action
+                        // Action when clicking the button
                       },
                     ),
                   ),
-
                   Positioned(
                     top: 0,
-                    left: 180,
+                    left: screenWidth * 0.5,
                     right: 0,
                     child: Container(
-                      height: 150,
+                      height: screenHeight * 0.15,
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 26, 5, 63),
-                        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(100)),
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(100)),
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 50, right: 20),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: screenHeight * 0.05, right: screenWidth * 0.05),
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Text(
                             'Fashee here,\nNimasha !!!',
                             textAlign: TextAlign.right,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.045,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 70),
+                    padding: EdgeInsets.only(top: screenHeight * 0.1),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: 300,
+                          height: screenHeight * 0.3,
                           child: Image.asset(
                             "assets/images/feed/mmmm.png",
                             fit: BoxFit.cover,
-                            colorBlendMode: BlendMode.difference,
                           ),
                         ),
-                        const Text(
+                        Text(
                           "Let's explore the fashion...",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.045,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: screenHeight * 0.02),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 255, 255, 255),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withValues(alpha: 0.3 * 255),
                                   blurRadius: 10,
                                   spreadRadius: 3,
                                 ),
@@ -104,18 +114,18 @@ class FasheeHomePage extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: TextField(
-                                    controller: _textController, // Controller linked here
-                                    decoration: const InputDecoration(
+                                    controller: _textController,
+                                    decoration: InputDecoration(
                                       hintText: 'Ask Me Anything...',
                                       border: InputBorder.none,
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                                     ),
                                   ),
                                 ),
                                 Container(
-                                  margin: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
-                                    color: Color.fromARGB(255, 26, 5, 63),
+                                  margin: EdgeInsets.all(screenWidth * 0.02),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(255, 26, 5, 63),
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
@@ -123,9 +133,7 @@ class FasheeHomePage extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ChatScreen(),
-                                        ),
+                                        MaterialPageRoute(builder: (context) => ChatScreen()),
                                       );
                                     },
                                   ),
@@ -134,10 +142,10 @@ class FasheeHomePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: screenHeight * 0.02),
                         Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
+                          spacing: screenWidth * 0.02,
+                          runSpacing: screenHeight * 0.01,
                           alignment: WrapAlignment.center,
                           children: [
                             CustomButton(text: 'I have a wedding', controller: _textController),
@@ -150,7 +158,7 @@ class FasheeHomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.02),
             ],
           ),
         ),
@@ -160,7 +168,6 @@ class FasheeHomePage extends StatelessWidget {
   }
 }
 
-// **Custom Button**
 class CustomButton extends StatelessWidget {
   final String text;
   final TextEditingController controller;
@@ -169,11 +176,12 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blueGrey[100],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 15),
       ),
       onPressed: () {
         controller.text = text;
