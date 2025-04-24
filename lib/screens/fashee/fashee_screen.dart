@@ -32,32 +32,18 @@ class FasheeHomePage extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  Positioned(
-                    top: screenHeight * 0.02,
-                    left: screenWidth * 0.05,
-                    child: Container(
-                      padding: EdgeInsets.all(screenWidth * 0.02),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.menu, color: Colors.black, size: screenWidth * 0.1),
-                        onPressed: () {},
-                      ),
-                  // ✅ **Fixed: Clickable Menu Button**
+                  // Menu Button
                   Container(
                     padding: EdgeInsets.all(8),
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3 * 255),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: IconButton(
                       icon: Icon(Icons.menu, color: Colors.black, size: 40),
                       onPressed: () {
-                        // **Action when clicking the button**
-                        // Replace this with any action
+                        // Action when clicking the button
                       },
                     ),
                   ),
@@ -117,7 +103,7 @@ class FasheeHomePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withValues(alpha: 0.3 * 255),
                                   blurRadius: 10,
                                   spreadRadius: 3,
                                 ),

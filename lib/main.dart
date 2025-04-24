@@ -37,7 +37,7 @@ class FitOn extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
 
-      home: Scaffold(body: OnboardingScreen()), 
+      home: Scaffold(body: OnboardingScreen()),
     );
   }
 }
