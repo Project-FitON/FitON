@@ -45,6 +45,20 @@ class FasheeHomePage extends StatelessWidget {
                         icon: Icon(Icons.menu, color: Colors.black, size: screenWidth * 0.1),
                         onPressed: () {},
                       ),
+                  // ✅ **Fixed: Clickable Menu Button**
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.menu, color: Colors.black, size: 40),
+                      onPressed: () {
+                        // **Action when clicking the button**
+                        // Replace this with any action
+                      },
                     ),
                   ),
                   Positioned(

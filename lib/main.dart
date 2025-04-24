@@ -1,3 +1,11 @@
+import 'package:fiton/screens/account/account_screen.dart';
+import 'package:fiton/screens/account/notifications_screen.dart';
+import 'package:fiton/screens/settings/addressbook.dart';
+import 'package:fiton/screens/settings/payment_settings.dart';
+import 'package:fiton/screens/settings/settings_screen.dart';
+import 'package:fiton/screens/add/add_dependents_screen.dart';
+import 'package:fiton/screens/add/dependents_screen.dart';
+import 'package:fiton/screens/cart/cart_screen.dart';
 import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
 import 'package:fiton/screens/fashee/fashee_screen.dart';
 import 'package:flutter/material.dart';
