@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '17'  # Updated to supported LTS version
+          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -39,6 +39,11 @@ jobs:
 
       - name: Verify Dart Version
         run: dart --version
+
+      - name: Create .env file
+        run: |
+          mkdir -p assets
+          echo "HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}" > assets/.env
 
       - name: Install Dependencies
         run: flutter pub get
@@ -68,4 +73,4 @@ jobs:
         with:
           artifacts: "build/app/outputs/flutter-apk/*.apk,build/ios/iphoneos/app.ipa"
           tag: v1.0.${{ github.run_number }}
-          token: ${{ secrets.CGP }}  # Use default GitHub token
+          token: ${{ secrets.CGP }}

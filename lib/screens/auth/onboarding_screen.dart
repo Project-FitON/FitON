@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'signup_name_screen.dart';
 import 'login_otp_screen.dart';
 import 'supabase_service.dart';

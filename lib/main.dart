@@ -1,17 +1,6 @@
-
-import 'package:fiton/screens/account/account_screen.dart';
-import 'package:fiton/screens/account/notifications_screen.dart';
-import 'package:fiton/screens/settings/addressbook.dart';
-import 'package:fiton/screens/settings/payment_settings.dart';
-import 'package:fiton/screens/settings/settings_screen.dart';
-import 'package:fiton/screens/add/add_dependents_screen.dart';
-import 'package:fiton/screens/add/dependents_screen.dart';
-import 'package:fiton/screens/cart/cart_screen.dart';
-import 'package:fiton/screens/fashee/fashee_chat_screen.dart';
-import 'package:fiton/screens/fashee/fashee_screen.dart';
-import 'package:fiton/screens/feed/feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fiton/screens/feed/feed_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is ready
@@ -37,8 +26,9 @@ class FitOn extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-
-      home: Scaffold(body: OnboardingScreen()),
+      home: Scaffold(
+        body: FeedScreen(),
+        ),
     );
   }
 }
