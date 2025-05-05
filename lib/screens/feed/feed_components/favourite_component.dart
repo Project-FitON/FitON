@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../services/feed_service.dart';
+import 'dart:async';
 
 class FavouriteComponent extends StatefulWidget {
   final String reviewId;
@@ -20,8 +22,8 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
   late Color countColor;
   late Color iconColor;
   bool isTapped = false;
-
-  final SupabaseClient supabase = Supabase.instance.client;
+  String? currentUserId;
+  StreamSubscription<List<Map<String, dynamic>>>? _subscription;
 
   @override
   void initState() {
@@ -29,20 +31,23 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     favoriteCount = widget.initialFavoriteCount;
     countColor = Colors.white;
     iconColor = Colors.white;
+    currentUserId = Supabase.instance.client.auth.currentUser?.id;
 
-    _fetchLikes(); // Fetch initial likes count
-    _subscribeToRealtimeUpdates(); // Listen for live updates
+    _fetchLikes();
+    _checkIfFavorited();
+    _subscribeToRealtimeUpdates();
   }
 
-  /// Fetch likes count from Supabase
   Future<void> _fetchLikes() async {
     try {
-      final response = await supabase
-          .from('reviews')
-          .select('likes')
-          .eq('review_id', widget.reviewId)
-          .maybeSingle(); // Returns null if no data
+      final response =
+          await Supabase.instance.client
+              .from('reviews')
+              .select('likes')
+              .eq('review_id', widget.reviewId)
+              .maybeSingle();
 
+      if (!mounted) return;
       if (response != null && response.containsKey("likes")) {
         setState(() {
           favoriteCount = response["likes"] as int;
@@ -53,23 +58,44 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     }
   }
 
-  /// Subscribe to real-time changes in Supabase
-  void _subscribeToRealtimeUpdates() {
-    supabase
-        .from('reviews')
-        .stream(primaryKey: ['review_id']) // Listen for changes based on primary key
-        .eq('review_id', widget.reviewId) // Filter to only this review
-        .listen((List<Map<String, dynamic>> data) {
-      if (data.isNotEmpty && data.first.containsKey("likes")) {
-        setState(() {
-          favoriteCount = data.first["likes"] as int;
-        });
-      }
-    });
+  Future<void> _checkIfFavorited() async {
+    if (currentUserId != null) {
+      final favorites = await FeedService.getFavorites(currentUserId!);
+      if (!mounted) return;
+      setState(() {
+        isTapped = favorites.contains(widget.reviewId);
+        countColor = isTapped ? Colors.red : Colors.white;
+        iconColor = isTapped ? Colors.red : Colors.white;
+      });
+    }
   }
 
-  /// Toggle favorite and update Supabase
+  void _subscribeToRealtimeUpdates() {
+    _subscription = Supabase.instance.client
+        .from('reviews')
+        .stream(primaryKey: ['review_id'])
+        .eq('review_id', widget.reviewId)
+        .listen((data) {
+          if (!mounted) return;
+          if (data.isNotEmpty && data.first.containsKey("likes")) {
+            setState(() {
+              favoriteCount = data.first["likes"] as int;
+            });
+          }
+        });
+  }
+
   Future<void> _toggleFavorite() async {
+    if (currentUserId == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please login to favorite items')),
+      );
+      return;
+    }
+
+    final previousState = isTapped;
+    if (!mounted) return;
     setState(() {
       isTapped = !isTapped;
       favoriteCount = isTapped ? favoriteCount + 1 : favoriteCount - 1;
@@ -78,18 +104,35 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     });
 
     try {
-      await supabase
-          .from('reviews')
-          .update({'likes': favoriteCount})
-          .eq('review_id', widget.reviewId);
+      final success = await Future.wait([
+        FeedService.toggleFavorite(currentUserId!, widget.reviewId),
+        FeedService.updateLikes(widget.reviewId, favoriteCount),
+      ]);
+
+      if (!mounted) return;
+      if (!success.every((result) => result)) {
+        setState(() {
+          isTapped = previousState;
+          favoriteCount = isTapped ? favoriteCount + 1 : favoriteCount - 1;
+          countColor = isTapped ? Colors.red : Colors.white;
+          iconColor = isTapped ? Colors.red : Colors.white;
+        });
+      }
     } catch (error) {
-      print('Error updating likes: $error');
+      print('Error toggling favorite: $error');
+      if (!mounted) return;
+      setState(() {
+        isTapped = previousState;
+        favoriteCount = isTapped ? favoriteCount + 1 : favoriteCount - 1;
+        countColor = isTapped ? Colors.red : Colors.white;
+        iconColor = isTapped ? Colors.red : Colors.white;
+      });
     }
   }
 
   @override
   void dispose() {
-    supabase.removeAllChannels(); // Unsubscribe from all Supabase real-time channels
+    _subscription?.cancel();
     super.dispose();
   }
 
@@ -99,9 +142,10 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
     double componentWidth = screenWidth * 0.1;
 
     // Format the favorite count for display
-    String formattedCount = favoriteCount < 1000
-        ? favoriteCount.toString()
-        : '${(favoriteCount / 1000).toStringAsFixed(1)}K';
+    String formattedCount =
+        favoriteCount < 1000
+            ? favoriteCount.toString()
+            : '${(favoriteCount / 1000).toStringAsFixed(1)}K';
 
     return ElevatedButton(
       onPressed: _toggleFavorite,
@@ -120,10 +164,7 @@ class _FavouriteComponentState extends State<FavouriteComponent> {
               width: componentWidth,
               height: componentWidth,
               child: ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  iconColor,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                 child: Image.asset(
                   'assets/images/feed/favourit.png',
                   fit: BoxFit.contain,

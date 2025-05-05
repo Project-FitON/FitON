@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../search_screen.dart';
+import '../recommendations_screen.dart';
 
 class TopButtonsComponent extends StatelessWidget {
   const TopButtonsComponent({super.key});
@@ -12,26 +14,50 @@ class TopButtonsComponent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Search Button
-          InkWell(
-            onTap: () {
-              // Handle search tap
-            },
-            child: SizedBox(
-              width: 30,
-              height: 29,
-              child: Image.asset('assets/images/feed/search.png', fit: BoxFit.contain),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchScreen()),
+                );
+              },
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                width: 30,
+                height: 29,
+                padding: const EdgeInsets.all(2),
+                child: Image.asset(
+                  'assets/images/feed/search.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 10),
           // Recommendations Button
-          InkWell(
-            onTap: () {
-              // Handle recommendations tap
-            },
-            child: SizedBox(
-              width: 30,
-              height: 30,
-              child: Image.asset('assets/images/feed/for-icon.png', fit: BoxFit.contain),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RecommendationsScreen(),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                width: 30,
+                height: 30,
+                padding: const EdgeInsets.all(2),
+                child: Image.asset(
+                  'assets/images/feed/for-icon.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ),
         ],

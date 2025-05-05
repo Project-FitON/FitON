@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PayPal Payment</title>
+</head>
+<body>
+    <div id="paypal-button-container"></div>
+    <script src="https://www.paypal.com/sdk/js?client-id=ATITiABFGDshKRw6nJ04PhIn1R-rg8roBbMtsXHIFbDqN8uKjH3O_7CqjX-b_6MvWHq1c8dxe1cTGhlE&currency=USD"></script>
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount');
+        const itemsJson = urlParams.get('items');
+        const items = JSON.parse(decodeURIComponent(itemsJson));
+
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            currency_code: "USD",
+                            value: amount,
+                            breakdown: {
+                                item_total: {
+                                    currency_code: "USD",
+                                    value: amount
+                                }
+                            }
+                        },
+                        items: items.map(item => ({
+                            name: item.name,
+                            quantity: item.quantity,
+                            unit_amount: {
+                                currency_code: "USD",
+                                value: item.price
+                            }
+                        }))
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    window.location.href = 'fiton://payment/success';
+                });
+            },
+            onCancel: function(data) {
+                window.location.href = 'fiton://payment/cancel';
+            },
+            onError: function(err) {
+                window.location.href = 'fiton://payment/error?message=' + encodeURIComponent(err.message);
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html> 

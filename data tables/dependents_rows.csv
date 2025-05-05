@@ -1,0 +1,7 @@
+dependent_id,buyer_id,nickname,date_of_birth,gender,size_measurements,recommendation_opt_out,created_at,updated_at
+06331a40-c1f1-43c1-8039-e4f109c0a97d,e16dd632-12ee-4190-8912-052d5863d475,LittleLiam,2014-09-07,Male,"{""bust"":30,""hips"":32,""waist"":26,""length"":35}",false,2025-01-29 10:56:12.699465,2025-01-29 10:56:12.699465
+268c1ea5-b011-43c0-9afc-bd04d27b3779,032ef1b5-3cbc-45d9-9aed-2f322a304ec3,TinyDavid,2021-06-10,Male,"{""bust"":22,""hips"":23,""waist"":18,""length"":25}",false,2025-01-29 10:56:12.699465,2025-01-29 10:56:12.699465
+3ef09c87-e309-469b-ae34-4f53dc1d999c,15256b38-f936-4a33-8513-8b44be46e114,MiniEmma,2016-11-03,Female,"{""bust"":28,""hips"":30,""waist"":23,""length"":32}",false,2025-01-29 10:56:12.699465,2025-01-29 10:56:12.699465
+68d30efa-ca46-45d0-ba60-e33de528cff6,2c3c9d38-601a-4271-8fe8-e3cc1dc4ac18,MiniJane,2018-06-25,Female,"{""bust"":22,""hips"":24,""waist"":20,""length"":28}",false,2025-01-29 10:56:12.699465,2025-01-29 10:56:12.699465
+b9838fe6-2947-4b62-ab9d-6812a8b7cf30,d1ea8d09-451f-4ac9-851f-13f1567e09ef,LittleJohn,2015-03-12,Male,"{""bust"":28,""hips"":30,""waist"":24,""length"":32}",false,2025-01-29 10:56:12.699465,2025-01-29 10:56:12.699465
+f12f47b3-f3c9-4b3b-8459-cab63937b761,9d5333fe-b439-49b3-a6d7-d54de2bea368,LittleAlice,2017-09-15,Female,"{""bust"":26,""hips"":28,""waist"":22,""length"":30}",false,2025-01-29 10:56:12.699465,2025-01-29 10:56:12.699465

@@ -28,9 +28,41 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> fetchCart() async {
     try {
       debugPrint('Fetching cart items...');
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
+
+      // First get the user's cart
+      final cartResponse =
+          await _supabase.from('cart').select().eq('buyer_id', userId).single();
+
+      if (cartResponse == null) {
+        setState(() {
+          cartItems = [];
+          isLoading = false;
+        });
+        return;
+      }
+
+      final cartId = cartResponse['cart_id'];
+
+      // Then get cart items with product details
       final cartItemsResponse = await _supabase
           .from('cart_items')
-          .select(', products ()');
+          .select('''
+            *,
+            products (
+              product_id,
+              name,
+              price,
+              images,
+              stock
+            )
+          ''')
+          .eq('cart_id', cartId);
+
+      debugPrint('Cart items response: $cartItemsResponse');
 
       if (mounted) {
         setState(() {
@@ -51,13 +83,11 @@ class _CartScreenState extends State<CartScreen> {
 
   List<CartItems> cartItemsFromDatabase(List<dynamic> items) {
     return items.map<CartItems>((item) {
-      final product = item['products'] ?? {};
+      debugPrint('Processing cart item: $item');
+      final product = item['products'];
       final List<dynamic> images =
-          (product['images'] is List) ? product['images'] : [];
-      final String imageUrl =
-          images.isNotEmpty
-              ? images[0]
-              : 'https://example.com/tshirt1.jpg'; // Use the first image URL or empty string
+          product != null && product['images'] is List ? product['images'] : [];
+      final String imageUrl = images.isNotEmpty ? images[0] : '';
 
       return CartItems(
         cartItemId: item['cart_item_id'] ?? '',
@@ -69,10 +99,15 @@ class _CartScreenState extends State<CartScreen> {
         createdAt: DateTime.parse(
           item['created_at'] ?? DateTime.now().toIso8601String(),
         ),
-        imageUrl: imageUrl, // Use the image URL from the products table
-        productName: product['name'] ?? 'Unnamed Product', // Add product name
+        imageUrl: imageUrl,
+        productName:
+            product != null
+                ? product['name'] ?? 'Unnamed Product'
+                : 'Unnamed Product',
         productPrice:
-            (product['price'] as num?)?.toDouble() ?? 0.0, // Add price
+            product != null
+                ? (product['price'] as num?)?.toDouble() ?? 0.0
+                : 0.0,
       );
     }).toList();
   }

@@ -30,12 +30,17 @@ class OnboardingScreen extends StatelessWidget {
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => LoginOtpScreen(email: email),
+          pageBuilder:
+              (context, animation, secondaryAnimation) =>
+                  LoginOTPScreen(email: email),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
             const curve = Curves.ease;
-            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var tween = Tween(
+              begin: begin,
+              end: end,
+            ).chain(CurveTween(curve: curve));
             return SlideTransition(
               position: animation.drive(tween),
               child: child,
@@ -49,15 +54,17 @@ class OnboardingScreen extends StatelessWidget {
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => SignUpNameScreen(
-            buyerId: newBuyer['buyer_id'],
-            email: email,
-            ),
+          pageBuilder:
+              (context, animation, secondaryAnimation) =>
+                  SignUpNameScreen(buyerId: newBuyer['buyer_id'], email: email),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
             const curve = Curves.ease;
-            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var tween = Tween(
+              begin: begin,
+              end: end,
+            ).chain(CurveTween(curve: curve));
             return SlideTransition(
               position: animation.drive(tween),
               child: child,
@@ -95,10 +102,11 @@ class OnboardingScreen extends StatelessWidget {
                       child: Container(
                         width: 631.72,
                         height: 631.72,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
+                        decoration: const BoxDecoration(shape: BoxShape.circle),
+                        child: Image.asset(
+                          'assets/images/auth/blur-cir.png',
+                          fit: BoxFit.cover,
                         ),
-                        child: Image.asset('assets/images/auth/blur-cir.png', fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -108,10 +116,7 @@ class OnboardingScreen extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0x001B0331),
-                        Colors.black,
-                      ],
+                      colors: [Color(0x001B0331), Colors.black],
                       stops: [0.0, 0.9998],
                     ),
                   ),
@@ -188,7 +193,10 @@ class OnboardingScreen extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(width: 8),
-                                Icon(Icons.arrow_forward, color: Color(0xFFFAFBFC)),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  color: Color(0xFFFAFBFC),
+                                ),
                               ],
                             ),
                           ),

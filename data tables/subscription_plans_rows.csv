@@ -1,0 +1,3 @@
+plan_id,name,description,price,duration_in_months,created_at
+619eb532-6410-48cc-9d4c-860b277eac8f,Basic Plan,Basic subscription for exclusive deals,9.99,1,2025-01-29 10:56:12.699465
+a9f1baed-adc8-4bb3-8369-73ceaa93e0d2,Premium Plan,Premium subscription with added benefits,24.99,3,2025-01-29 10:56:12.699465

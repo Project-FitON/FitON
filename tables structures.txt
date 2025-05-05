@@ -1,0 +1,599 @@
+admin table
+
+Name	Description	Data Type	Format	
+admin_id
+
+No description
+
+uuid	uuid	
+name
+
+No description
+
+character varying	varchar	
+email
+
+No description
+
+character varying	varchar	
+password_hash
+
+No description
+
+text	text	
+created_at
+
+No description
+
+timestamp without time zone	timestamp
+
+
+
+
+audit_logs table 
+
+Name	Data Type	Format	
+log_id
+
+uuid	uuid	
+admin_id
+
+uuid	uuid	
+action
+
+text	text	
+target_table
+
+character varying	varchar	
+target_id
+
+uuid	uuid	
+details
+
+jsonb	jsonb	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+buyers table 
+
+Name	Data Type	Format	
+buyer_id
+
+uuid	uuid	
+nickname
+
+character varying	varchar	
+phone_number
+
+character varying	varchar	
+email
+
+character varying	varchar	
+password_hash
+
+text	text	
+date_of_birth
+
+date	date	
+gender
+
+character varying	varchar	
+created_at
+
+timestamp without time zone	timestamp	
+updated_at
+
+timestamp without time zone	timestamp	
+interests
+
+ARRAY	_text	
+recommendation_opt_out
+
+boolean	bool	
+address
+
+text	text
+
+
+
+
+cart table 
+
+Name	Data Type	Format	
+cart_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+created_at
+
+timestamp without time zone	timestamp	
+updated_at
+
+timestamp without time zone	timestamp
+
+
+
+
+cart_items table 
+
+Name	Data Type	Format	
+cart_item_id
+
+uuid	uuid	
+cart_id
+
+uuid	uuid	
+product_id
+
+uuid	uuid	
+quantity
+
+integer	int4	
+selected_size
+
+character varying	varchar	
+selected_color
+
+character varying	varchar	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+dependents table
+
+Name	Data Type	Format	
+dependent_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+nickname
+
+character varying	varchar	
+date_of_birth
+
+date	date	
+gender
+
+character varying	varchar	
+size_measurements
+
+jsonb	jsonb	
+recommendation_opt_out
+
+boolean	bool	
+created_at
+
+timestamp without time zone	timestamp	
+updated_at
+
+timestamp without time zone	timestamp
+
+
+
+
+
+fashee_chats table 
+
+Name	Data Type	Format	
+chat_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+dependent_id
+
+uuid	uuid	
+messages
+
+jsonb	jsonb	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+
+favorites table 
+
+Name	Data Type	Format	
+id
+
+uuid	uuid	
+user_id
+
+uuid	uuid	
+review_id
+
+uuid	uuid	
+created_at
+
+timestamp with time zone	timestamptz	
+
+
+
+
+followers table
+
+Name	Data Type	Format	
+follow_id
+
+uuid	uuid	
+shop_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+date
+
+timestamp without time zone	timestamp	
+
+
+
+
+order_items table 
+
+Name	Data Type	Format	
+order_item_id
+
+uuid	uuid	
+order_id
+
+uuid	uuid	
+product_id
+
+uuid	uuid	
+quantity
+
+integer	int4	
+selected_size
+
+character varying	varchar	
+selected_color
+
+character varying	varchar	
+price
+
+numeric	numeric	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+
+orders table 
+
+Name	Data Type	Format	
+order_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+shop_id
+
+uuid	uuid	
+status
+
+character varying	varchar	
+payment_method
+
+character varying	varchar	
+total_price
+
+numeric	numeric	
+created_at
+
+timestamp without time zone	timestamp	
+updated_at
+
+timestamp without time zone	timestamp
+
+
+
+payment_releases table 
+
+Name	Data Type	Format	
+release_id
+
+uuid	uuid	
+shop_id
+
+uuid	uuid	
+order_id
+
+uuid	uuid	
+amount
+
+numeric	numeric	
+release_status
+
+character varying	varchar	
+release_date
+
+timestamp without time zone	timestamp	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+
+payments table 
+
+Name	Data Type	Format	
+payment_id
+
+uuid	uuid	
+order_id
+
+uuid	uuid	
+amount
+
+numeric	numeric	
+method
+
+character varying	varchar	
+status
+
+character varying	varchar	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+photos table 
+
+Name	Data Type	Format	
+photo_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+photo_type
+
+text	text	
+photo_url
+
+text	text	
+created_at
+
+timestamp without time zone	timestamp	
+dependent_id
+
+uuid	uuid
+
+
+
+
+products table 
+
+Name	Data Type	Format	
+product_id
+
+uuid	uuid	
+shop_id
+
+uuid	uuid	
+name
+
+character varying	varchar	
+gender
+
+text	text	
+category
+
+character varying	varchar	
+images
+
+ARRAY	_text	
+price
+
+numeric	numeric	
+stock
+
+integer	int4	
+likes
+
+integer	int4	
+orders_count
+
+integer	int4	
+size_chart
+
+text	text	
+size_measurements
+
+jsonb	jsonb	
+created_at
+
+timestamp without time zone	timestamp	
+updated_at
+
+timestamp without time zone	timestamp	
+wish
+
+integer	int4	
+wear
+
+text	text
+
+
+
+
+reviews table 
+
+Name	Data Type	Format	
+review_id
+
+uuid	uuid	
+product_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+rating
+
+integer	int4	
+comment
+
+text	text	
+likes
+
+integer	int4	
+created_at
+
+timestamp without time zone	timestamp	
+shop_id
+
+uuid	uuid
+
+
+
+
+shops table 
+
+Name	Data Type	Format	
+shop_id
+
+uuid	uuid	
+shop_name
+
+character varying	varchar	
+nickname
+
+character varying	varchar	
+phone_number
+
+character varying	varchar	
+email
+
+character varying	varchar	
+password_hash
+
+text	text	
+profile_photo
+
+text	text	
+cover_photo
+
+text	text	
+paypal_email
+
+character varying	varchar	
+bank_account_number
+
+character varying	varchar	
+bank_name
+
+character varying	varchar	
+upi_id
+
+character varying	varchar	
+cash_on_delivery
+
+boolean	bool	
+created_at
+
+timestamp without time zone	timestamp	
+updated_at
+
+timestamp without time zone	timestamp
+
+
+
+
+ 
+subscription_plans table 
+
+Name	Data Type	Format	
+plan_id
+
+uuid	uuid	
+name
+
+character varying	varchar	
+description
+
+text	text	
+price
+
+numeric	numeric	
+duration_in_months
+
+integer	int4	
+created_at
+
+timestamp without time zone	timestamp
+
+
+
+subscriptions table 
+
+Name	Data Type	Format	
+subscription_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+shop_id
+
+uuid	uuid	
+plan_id
+
+uuid	uuid	
+start_date
+
+date	date	
+end_date
+
+date	date	
+created_at
+
+timestamp without time zone	timestamp	
+
+
+
+
+
+tryons table 
+
+Name	Data Type	Format	
+tryon_id
+
+uuid	uuid	
+buyer_id
+
+uuid	uuid	
+product_id
+
+uuid	uuid	
+input_photo_id
+
+uuid	uuid	
+generated_tryons
+
+ARRAY	_text	
+created_at
+
+timestamp without time zone	timestamp	
+dependent_id
+
+uuid	uuid
+ 
+ 

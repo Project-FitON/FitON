@@ -1,0 +1,4 @@
+chat_id,buyer_id,dependent_id,messages,created_at
+1a849a0b-7816-4c2e-8513-edfdda6a1fe3,2c3c9d38-601a-4271-8fe8-e3cc1dc4ac18,68d30efa-ca46-45d0-ba60-e33de528cff6,"[{""image"":null,""message"":""Hi, I need help."",""timestamp"":""2025-01-01T12:00:00Z""}]",2025-01-29 10:56:12.699465
+235a8555-abd7-462a-9a64-240bb413ff1f,2c5caac4-1d1e-41d9-90a8-52fb1641e312,,"[{""image"":null,""message"":""Can you suggest a suitable product?"",""timestamp"":""2025-01-15T15:00:00Z""}]",2025-01-29 10:56:12.699465
+f547ed3e-eedc-49c7-9e7f-f10cc8a48ecd,e16dd632-12ee-4190-8912-052d5863d475,06331a40-c1f1-43c1-8039-e4f109c0a97d,"[{""image"":null,""message"":""Are these bottles BPA-free?"",""timestamp"":""2025-02-01T10:00:00Z""}]",2025-01-29 10:56:12.699465

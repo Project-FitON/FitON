@@ -21,11 +21,11 @@ class ProductComponent extends StatelessWidget {
     return InkWell(
       onTap: onTap, // Trigger the onTap action when clicked
       child: Container(
-        constraints: BoxConstraints(minWidth: 239),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        constraints: BoxConstraints(maxWidth: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
           color: Colors.grey[800], // Add some background color for the button
-          borderRadius: BorderRadius.circular(8), // Rounded corners for the button
+          borderRadius: BorderRadius.circular(6), // Smaller border radius
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,28 +40,28 @@ class ProductComponent extends StatelessWidget {
                   '${realPrice.toInt()} Rs',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 25,
+                    fontSize: 20,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   '${discountPrice.toInt()} Rs',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 10,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                     decoration: TextDecoration.lineThrough,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   '[-$discountPercentage%]',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 10,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                   ),
@@ -74,7 +74,7 @@ class ProductComponent extends StatelessWidget {
               title,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 12,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w500,
               ),

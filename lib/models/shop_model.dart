@@ -5,40 +5,42 @@ class ShopModel {
   final String shopName;
   final String? nickname;
   final String? phoneNumber;
-  final String email;
-  final String passwordHash;
+  final String? email;
+  final String? passwordHash;
   final String? profilePhoto;
   final String? coverPhoto;
   final String? paypalEmail;
   final String? bankAccountNumber;
   final String? bankName;
   final String? upiId;
-  final bool cashOnDelivery;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final bool? cashOnDelivery;
+  final int followers;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   ShopModel({
     required this.shopId,
     required this.shopName,
     this.nickname,
     this.phoneNumber,
-    required this.email,
-    required this.passwordHash,
+    this.email,
+    this.passwordHash,
     this.profilePhoto,
     this.coverPhoto,
     this.paypalEmail,
     this.bankAccountNumber,
     this.bankName,
     this.upiId,
-    required this.cashOnDelivery,
-    required this.createdAt,
-    required this.updatedAt,
+    this.cashOnDelivery,
+    this.followers = 0,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
-      shopId: json['shop_id'],
-      shopName: json['shop_name'],
+      shopId: json['shop_id'] ?? '',
+      shopName: json['shop_name'] ?? '',
       nickname: json['nickname'],
       phoneNumber: json['phone_number'],
       email: json['email'],
@@ -50,8 +52,15 @@ class ShopModel {
       bankName: json['bank_name'],
       upiId: json['upi_id'],
       cashOnDelivery: json['cash_on_delivery'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      followers: json['followers'] ?? 0,
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : null,
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : null,
     );
   }
 
@@ -70,8 +79,9 @@ class ShopModel {
       'bank_name': bankName,
       'upi_id': upiId,
       'cash_on_delivery': cashOnDelivery,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'followers': followers,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 

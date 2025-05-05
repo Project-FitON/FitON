@@ -1,0 +1,2 @@
+log_id,admin_id,action,target_table,target_id,details,created_at
+d71a24fb-5ab7-49d3-a4cd-56ff8ab8afd3,e2e32f21-40c3-4b41-87d4-3020a56b6d6a,CREATE,buyers,d1ea8d09-451f-4ac9-851f-13f1567e09ef,"{""email"":""john.doe@example.com"",""phone_number"":""1234567890""}",2025-01-29 10:56:12.699465

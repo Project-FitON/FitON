@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../feed/nav_screen.dart';
 import '../settings/settings_screen.dart';
 import 'notifications_screen.dart';
+import '../../models/user_model.dart';
+import '../../services/user_service.dart';
+import '../../services/order_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -15,6 +19,13 @@ class _AccountScreenState extends State<AccountScreen>
   bool _showOrdersScreen = false;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  User? _currentUser;
+  final UserService _userService = UserService();
+  final OrderService _orderService = OrderService();
+  final _supabase = Supabase.instance.client;
+  bool _isLoading = true;
+  String? _error;
+  String? _debugInfo;
 
   @override
   void initState() {
@@ -27,6 +38,54 @@ class _AccountScreenState extends State<AccountScreen>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      // Check database structure first
+      await _userService.checkBuyersTable();
+      // Then load user data
+      await _loadUserData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error initializing: $e')));
+      }
+    }
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      setState(() => _isLoading = true);
+      final user = await _userService.getCurrentUser();
+      if (mounted) {
+        setState(() {
+          _currentUser = user;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading user data: $e')));
+      }
+    }
+  }
+
+  Future<void> _handleSignOut() async {
+    try {
+      await _userService.signOut();
+      // Navigate to login screen or handle sign out
+      Navigator.of(context).pushReplacementNamed('/login');
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
+    }
   }
 
   @override
@@ -84,12 +143,40 @@ class _AccountScreenState extends State<AccountScreen>
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: ()  {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SettingsScreen(),
-                        ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text('Account Settings'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: Icon(Icons.settings),
+                                    title: Text('Settings'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => SettingsScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: Icon(Icons.logout),
+                                    title: Text('Sign Out'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      _handleSignOut();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                       );
                     },
                   ),
@@ -97,40 +184,87 @@ class _AccountScreenState extends State<AccountScreen>
               ),
             ),
 
-            // User Profile Section with custom avatar
+            // User Profile Section with actual user data
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Row(
-                children: [
-                  // Profile Avatar - White cat avatar as shown in design
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.white,
-                    backgroundImage: const AssetImage(
-                      'assets/images/white_cat_avatar.png',
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // User Info
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Nimasha Heath',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+              child:
+                  _isLoading
+                      ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                      : Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.white,
+                            child:
+                                _currentUser?.profileImageUrl != null
+                                    ? ClipOval(
+                                      child: Image.network(
+                                        _currentUser!.profileImageUrl!,
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
+                                                  Icons.person,
+                                                  size: 40,
+                                                  color: Color(0xFF1A0933),
+                                                ),
+                                      ),
+                                    )
+                                    : const Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: Color(0xFF1A0933),
+                                    ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _currentUser?.name ?? 'No Name',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _currentUser?.email ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white24,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${_currentUser?.planType ?? 'Free Plan'} User',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Free Plan User',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
 
             // Main Content Area with White Background (curved container)
@@ -321,17 +455,85 @@ class _AccountScreenState extends State<AccountScreen>
   }
 }
 
-// Collection Screen Widget (existing content)
-class CollectionScreen extends StatelessWidget {
+// Collection Screen Widget with real data
+class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
 
   @override
+  State<CollectionScreen> createState() => _CollectionScreenState();
+}
+
+class _CollectionScreenState extends State<CollectionScreen> {
+  final OrderService _orderService = OrderService();
+  final _supabase = Supabase.instance.client;
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _orders = [];
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final orders = await _orderService.getUserOrders(user.id);
+
+      if (mounted) {
+        setState(() {
+          _orders = orders;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Error: $_error',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: _loadOrders, child: const Text('Retry')),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          // Orders Count Card
+          // Orders Count Card with real count
           Align(
             alignment: Alignment.topLeft,
             child: Container(
@@ -341,19 +543,19 @@ class CollectionScreen extends StatelessWidget {
                 color: const Color(0xFF1A0933),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '8',
-                    style: TextStyle(
+                    _orders.length.toString(),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Text(
+                  const SizedBox(width: 8),
+                  const Text(
                     'In Orders',
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
@@ -362,43 +564,328 @@ class CollectionScreen extends StatelessWidget {
             ),
           ),
 
-          // Grid Layout for Clothing Items
+          // Grid Layout for Orders
           Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.8,
-              children: [
-                // Orange embroidered top
-                ClothingItemCard(imageUrl: 'assets/images/orange_top.png'),
-                // Red casual top
-                ClothingItemCard(imageUrl: 'assets/images/red_top.png'),
-                // Teal satin crop top
-                ClothingItemCard(imageUrl: 'assets/images/teal_top.png'),
-                // Orange mini dress
-                ClothingItemCard(imageUrl: 'assets/images/orange_dress.png'),
-              ],
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.8,
+              ),
+              itemCount: _orders.length,
+              itemBuilder: (context, index) {
+                final order = _orders[index];
+                final orderItems = List<Map<String, dynamic>>.from(
+                  order['order_items'] ?? [],
+                );
+                final firstItem =
+                    orderItems.isNotEmpty ? orderItems.first : null;
+                final product = firstItem?['product'];
+                final status = order['status'] ?? 'Unknown';
+                final totalPrice = order['total_price']?.toDouble() ?? 0.0;
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Product Image or Placeholder
+                        if (product != null &&
+                            product['images'] != null &&
+                            (product['images'] as List).isNotEmpty)
+                          Image.network(
+                            product['images'][0],
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  color: Colors.grey[200],
+                                  child: const Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                          )
+                        else
+                          Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.shopping_bag,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                          ),
+
+                        // Gradient Overlay
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            height: 80,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7),
+                                ],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${orderItems.length} ${orderItems.length == 1 ? 'item' : 'items'}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  '\$${totalPrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Status Badge
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(status).withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              status,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
     );
   }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'shipped':
+        return Colors.blue;
+      case 'delivered':
+      case 'completed':
+        return Colors.green;
+      case 'processing':
+      case 'to ship':
+        return Colors.orange;
+      case 'pending':
+      case 'unpaid':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 }
 
-// Orders Screen Widget (similar layout but for orders)
-class OrdersScreen extends StatelessWidget {
+// Orders Screen Widget with real data
+class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
 
   @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  final OrderService _orderService = OrderService();
+  final _supabase = Supabase.instance.client;
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _orders = [];
+  String? _error;
+  String? _debugInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+        _debugInfo = 'Starting to load orders...';
+      });
+
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      setState(() {
+        _debugInfo = 'User authenticated with ID: ${user.id}';
+      });
+
+      final orders = await _orderService.getUserOrders(user.id);
+
+      setState(() {
+        _debugInfo =
+            'Orders fetched: ${orders.length}\nFirst order: ${orders.isNotEmpty ? orders.first : 'No orders'}';
+        _orders = orders;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load orders: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            if (_debugInfo != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _debugInfo!,
+                  style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _error!,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            if (_debugInfo != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _debugInfo!,
+                  style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: _loadOrders, child: const Text('Retry')),
+          ],
+        ),
+      );
+    }
+
+    if (_orders.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('No orders found', style: TextStyle(fontSize: 16)),
+            if (_debugInfo != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _debugInfo!,
+                  style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadOrders,
+              child: const Text('Refresh'),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final user = _supabase.auth.currentUser;
+                  if (user == null) {
+                    throw Exception('User not authenticated');
+                  }
+
+                  setState(() {
+                    _isLoading = true;
+                    _debugInfo = 'Creating test order...';
+                  });
+
+                  await _orderService.createTestOrder(user.id);
+                  await _loadOrders();
+                } catch (e) {
+                  setState(() {
+                    _error = 'Failed to create test order: $e';
+                    _isLoading = false;
+                  });
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text('Create Test Order'),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Orders Title
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
@@ -410,117 +897,175 @@ class OrdersScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Grid Layout for Orders
           Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.8,
-              children: [
-                // Using the same images but with order status overlay
-                OrderItemCard(
-                  imageUrl: 'assets/images/orange_top.png',
-                  status: 'Shipped',
-                ),
-                OrderItemCard(
-                  imageUrl: 'assets/images/red_top.png',
-                  status: 'Processing',
-                ),
-                OrderItemCard(
-                  imageUrl: 'assets/images/teal_top.png',
-                  status: 'Delivered',
-                ),
-                OrderItemCard(
-                  imageUrl: 'assets/images/orange_dress.png',
-                  status: 'Pending',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Custom widget for clothing item cards
-class ClothingItemCard extends StatelessWidget {
-  final String imageUrl;
-
-  const ClothingItemCard({super.key, required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 3,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(imageUrl, fit: BoxFit.cover),
-            // Optional: Add a gradient overlay at the bottom for better visibility of possible text
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.1)],
-                  ),
-                ),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.8,
               ),
+              itemCount: _orders.length,
+              itemBuilder: (context, index) {
+                final order = _orders[index];
+                final orderItems = List<Map<String, dynamic>>.from(
+                  order['order_items'] ?? [],
+                );
+                final firstItem =
+                    orderItems.isNotEmpty ? orderItems.first : null;
+                final product = firstItem?['product'];
+                final status = order['status'] ?? 'Unknown';
+                final totalPrice = order['total_price']?.toDouble() ?? 0.0;
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Product Image or Placeholder
+                        if (product != null &&
+                            product['images'] != null &&
+                            (product['images'] as List).isNotEmpty)
+                          Image.network(
+                            product['images'][0],
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  color: Colors.grey[200],
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                          )
+                        else
+                          Container(
+                            color: Colors.grey[200],
+                            child: Icon(
+                              Icons.shopping_bag,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        // Gradient Overlay
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            height: 80,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7),
+                                ],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${orderItems.length} ${orderItems.length == 1 ? 'item' : 'items'}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  '\$${totalPrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Status Badge
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(status).withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              status,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
 
-// Custom widget for order item cards
-class OrderItemCard extends StatelessWidget {
-  final String imageUrl;
-  final String status;
-
-  const OrderItemCard({super.key, required this.imageUrl, required this.status});
-
-  Color _getStatusColor() {
+  Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'shipped':
         return Colors.blue;
       case 'delivered':
+      case 'completed':
         return Colors.green;
       case 'processing':
+      case 'to ship':
         return Colors.orange;
       case 'pending':
+      case 'unpaid':
         return Colors.red;
       default:
         return Colors.grey;
     }
   }
+}
+
+// Custom widget for clothing item cards
+class ClothingItemCard extends StatelessWidget {
+  final Color color;
+
+  const ClothingItemCard({super.key, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: color.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -535,8 +1080,20 @@ class OrderItemCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(imageUrl, fit: BoxFit.cover),
-            // Gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [color.withOpacity(0.2), color.withOpacity(0.4)],
+                ),
+              ),
+              child: Icon(
+                Icons.checkroom,
+                size: 50,
+                color: color.withOpacity(0.5),
+              ),
+            ),
             Positioned(
               bottom: 0,
               left: 0,
@@ -547,27 +1104,7 @@ class OrderItemCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.5)],
-                  ),
-                ),
-              ),
-            ),
-            // Status badge
-            Positioned(
-              top: 10,
-              right: 10,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
                   ),
                 ),
               ),

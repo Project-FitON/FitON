@@ -1,0 +1,2 @@
+admin_id,name,email,password_hash,created_at
+e2e32f21-40c3-4b41-87d4-3020a56b6d6a,AdminUser,admin@example.com,hashed_password,2025-01-29 10:56:12.699465

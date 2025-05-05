@@ -3,6 +3,7 @@ import 'package:fiton/models/cart_items_model.dart';
 import 'package:fiton/models/order_model.dart'; // Import the Order model
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+// import 'package:fiton/services/paypal_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<CartItems> cartItems;
@@ -111,6 +112,92 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return 'Unpaid'; // Default status for PayPal
     } else {
       return 'Unpaid'; // Default status for unknown payment methods
+    }
+  }
+
+  Future<void> _processPayment(String paymentMethod) async {
+    if (_savedAddressId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a delivery address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (paymentMethod.toLowerCase() == 'paypal') {
+      // await PayPalService.makePayment(
+      //   context: context,
+      //   items: widget.cartItems,
+      //   total: widget.total,
+      //   onSuccess: (Map params) async {
+      //     // Create order after successful payment
+      //     await _createOrder('PayPal', 'Paid');
+      //     Navigator.pop(context);
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(
+      //         content: Text('Payment successful! Order placed.'),
+      //         backgroundColor: Colors.green,
+      //       ),
+      //     );
+      //   },
+      //   onError: (error) {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(
+      //         content: Text('Payment failed: $error'),
+      //         backgroundColor: Colors.red,
+      //       ),
+      //     );
+      //   },
+      //   onCancel: (params) {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(
+      //         content: Text('Payment cancelled'),
+      //         backgroundColor: Colors.orange,
+      //       ),
+      //     );
+      //   },
+      // );
+    } else {
+      // Handle other payment methods
+      await _createOrder(paymentMethod, _getOrderStatus(paymentMethod));
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order placed successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  Future<void> _createOrder(String paymentMethod, String status) async {
+    try {
+      final orderId = const Uuid().v4();
+      final buyerId = _savedAddressId!;
+      final shopId =
+          'd58d639f-e15d-4b8c-bdfd-c9e44355a049'; // Replace with actual shop ID
+
+      final order = Order(
+        orderId: orderId,
+        buyerId: buyerId,
+        shopId: shopId,
+        status: status,
+        paymentMethod: paymentMethod,
+        totalPrice: widget.total,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await _supabase.from('orders').insert(order.toJson());
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to create order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -384,49 +471,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               (method) => method['payment_id'] == selectedPaymentId,
             );
 
-            // Determine the order status dynamically
-            final orderStatus = _getOrderStatus(selectedPayment['method']);
-
-            // Use the raw `method` value directly
-            final paymentMethod = selectedPayment['method'] as String;
-
-            // Generate a new UUID for the order
-            final String orderId = Uuid().v4();
-
-            // Ensure the buyer_id and shop_id are valid UUIDs
-            final buyerId = _savedAddressId!; // This should be a valid UUID
-            final shopId =
-                'd58d639f-e15d-4b8c-bdfd-c9e44355a049'; // Replace with actual shop ID (valid UUID)
-
-            // Create an Order object
-            final order = Order(
-              orderId: orderId,
-              buyerId: buyerId,
-              shopId: shopId,
-              status:
-                  orderStatus, // Ensure this matches the allowed values in the check constraint
-              paymentMethod:
-                  paymentMethod, // Directly use the value from the database
-              totalPrice: widget.total,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            );
-
-            // Save the order to the orders table
-            await _supabase.from('orders').insert(order.toJson());
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Order placed successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-
-            Navigator.pop(context);
+            await _processPayment(selectedPayment['method']);
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to place order: $e'),
+                content: Text('Failed to process payment: $e'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -434,25 +483,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF2D1441),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
+          minimumSize: const Size(double.infinity, 50),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Swipe to pay \$${widget.total.toStringAsFixed(2)}',
-              style: const TextStyle(
-                color: Colors.white, // Keep this white for contrast
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward, color: Colors.white),
-          ],
+        child: const Text(
+          'Place Order',
+          style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
     );
